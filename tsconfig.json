@@ -10,7 +10,7 @@
     "noEmit": true,
     "noImplicitAny": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src/",
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
