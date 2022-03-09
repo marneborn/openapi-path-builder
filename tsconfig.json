@@ -7,9 +7,10 @@
     "lib": ["esnext", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
+    "noEmit": true,
     "noImplicitAny": true,
     "outDir": "dist",
-    "rootDir": "src/",
+    "rootDir": ".",
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
@@ -20,6 +21,6 @@
     "src/**/*"
   ],
   "exclude": [
-    "**/*.spec.ts"
+    "node_modules"
   ]
 }
