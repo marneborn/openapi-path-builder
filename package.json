@@ -1,6 +1,6 @@
 {
-  "name": "openapi-path-builder",
-  "version": "0,0,0",
+  "name": "openapi-serialize-path",
+  "version": "0.0.0",
   "description": "Build the request path from an openapi definition",
   "main": "index.js",
   "author": "Mikael Arneborn <marneborn@gmail.com>",
@@ -21,7 +21,25 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
     "jest": "^27.5.1",
+    "openapi-types": "^10.0.0",
     "ts-jest": "^27.1.3"
+  },
+  "keywords": [
+    "openapi",
+    "oas",
+    "swagger",
+    "client",
+    "build",
+    "generate",
+    "serialize"
+  ],
+  "homepage": "https://github.com/marneborn/openapi-serialize-path",
+  "bugs": {
+    "url": "https://github.com/marneborn/openapi-serialize-path/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marneborn/openapi-serialize-path"
   },
   "scripts": {
     "prebuild": "rm -rf dist",
