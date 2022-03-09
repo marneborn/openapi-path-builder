@@ -15,7 +15,7 @@ module.exports = {
       extends: [
         'plugin:@typescript-eslint/recommended',
       ],
-      files: ['**/*.ts', '**/*.tsx'],
+      files: ['**/*.ts'],
       parser: '@typescript-eslint/parser',
       rules: {
         '@typescript-eslint/explicit-function-return-type': ['error', {
@@ -45,7 +45,6 @@ module.exports = {
       },
     },
   ],
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
