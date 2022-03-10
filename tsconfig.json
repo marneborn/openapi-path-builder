@@ -9,13 +9,15 @@
     "moduleResolution": "node",
     "noEmit": true,
     "noImplicitAny": true,
-    "outDir": "dist",
+    "noImplicitReturns": true,
+    "outDir": "./dist",
     "rootDir": "src/",
     "sourceMap": true,
     "strict": true,
+    "strictFunctionTypes": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "target": "es5"
+    "target": "es6"
   },
   "include": [
     "src/**/*"
