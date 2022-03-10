@@ -47,6 +47,7 @@
     "build:check": "tsc",
     "lint:js": "eslint *.js *.json .*.js .*.json src --ext .ts,.json --no-error-on-unmatched-pattern",
     "lint:js:fix": "yarn lint:js --fix",
+    "run:ts": "TS_NODE_FILES=true yarn run --silent ts-node --require tsconfig-paths/register",
     "test": "jest --ci",
     "test:watch": "jest --watch"
   }
