@@ -1,223 +1,153 @@
+import { OpenAPIV3 } from 'openapi-types';
+import { MissingPathParamError } from '../errors';
 import generateSerializePath from './index';
 
 describe('serializePath', () => {
-  describe('path params', () => {
-    it('just pass through the path', () => {
-      const serializePath = generateSerializePath({
-        definition: {
-          openapi: '3',
-          "info": {
-            "version": "1.0.0",
-            "title": "Swagger Petstore",
-          },
-          paths: {
-            '/pets': {
-              get: {
-                description: 'Returns all pets from the system that the user has access to',
-                operationId: 'findPets',
-                parameters: [],
-                responses: {},
-              },
-            },
-          },
-        },
-      });
-
-      expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/pets');
-    });
-
-    it('should prepend the basePath', () => {
-      // openapi v3 has a server: ServerObject[] instead of hostname + baseUrl
-      const serializePath = generateSerializePath({
-        basePath: '/api',
-        definition: {
-          openapi: '3',
-          "info": {
-            "version": "1.0.0",
-            "title": "Swagger Petstore",
-          },
-          paths: {
-            '/pets': {
-              get: {
-                description: 'Returns all pets from the system that the user has access to',
-                operationId: 'findPets',
-                parameters: [],
-                responses: {},
-              },
-            },
-          },
-        },
-      });
-
-      expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/api/pets');
-    });
-
-    it('should replace a path param', () => {});
-    it('should replace multiple path params', () => {});
-    it('should call onError if there are unresolved path params', () => {})
-  });
-
-  describe('querystring', () => {
-    it('should add query params', () => {})
-  });
-
-  describe('by operationId or whatever that is called', () => {
-    
-  })
-});
-/*
-
-const serializePath = generateSerializePath({
-  definition: {
-    basePath: '/api',
-    consumes: [
-      'application/json',
-    ],
-    paths: {
-      '/pets': {
-        get: {
-          description: 'Returns all pets from the system that the user has access to',
-          operationId: 'findPets',
-          parameters: [
-            {
-              description: 'tags to filter by',
-              in: 'query',
-              items: {
-                type: 'string',
-              },
-              collectionFormat: 'csv',
-              name: 'tags',
-              required: false,
-              type: 'array',
-            },
-            {
-              description: 'maximum number of results to return',
-              format: 'int32',
-              in: 'query',
-              name: 'limit',
-              required: false,
-              type: 'integer',
-            },
-          ],
-          produces: [
-            'application/json',
-            'application/xml',
-            'text/xml',
-            'text/html',
-          ],
-          responses: {
-            200: {
-              description: 'pet response',
-              schema: {
-                items: {
-                  $ref: '#/definitions/Pet',
+  describe('openapi v3', () => {
+    describe('path params', () => {
+      it('just pass through the path', () => {
+        const serializePath = generateSerializePath({
+          definition: {
+            openapi: '3',
+            paths: {
+              '/pets': {
+                get: {
+                  parameters: [],
+                  responses: {},
                 },
-                type: 'array',
               },
             },
-            default: {
-              description: 'unexpected error',
-              schema: {
-                $ref: '#/definitions/ErrorModel',
+          } as unknown as OpenAPIV3.Document,
+        });
+
+        expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/pets');
+      });
+
+      it('should prepend the basePath', () => {
+        // openapi v3 has a server: ServerObject[] instead of hostname + baseUrl
+        // use getBasePath to extract the basePath from the definition in v3
+        const serializePath = generateSerializePath({
+          basePath: '/api',
+          definition: {
+            openapi: '3',
+            paths: {
+              '/pets': {
+                get: {
+                  parameters: [],
+                  responses: {},
+                },
               },
             },
-          },
-        },
-        post: {
-          description: 'Creates a new pet in the store.  Duplicates are allowed',
-          operationId: 'addPet',
-          parameters: [
-            {
-              description: 'Pet to add to the store',
-              in: 'body',
-              name: 'pet',
-              required: true,
-              schema: {
-                $ref: '#/definitions/NewPet',
+          } as unknown as OpenAPIV3.Document
+        });
+
+        expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/api/pets');
+      });
+
+      it('should replace a path param', () => {
+        const serializePath = generateSerializePath({
+          definition: {
+            openapi: '3',
+            paths: {
+              '/pets/{petId}': {
+                get: {
+                  parameters: [
+                    {
+                      description: 'ID of pet to fetch',
+                      in: 'path',
+                      name: 'id',
+                      required: true,
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  ],
+                  responses: {},
+                },
               },
             },
-          ],
-          produces: [
-            'application/json',
-          ],
-          responses: {
-            200: {
-              description: 'pet response',
-              schema: {
-                $ref: '#/definitions/Pet',
+          } as unknown as OpenAPIV3.Document
+        });
+
+        expect(serializePath({ method: 'GET', path: '/pets/{petId}', params: { petId: '123' } })).toBe('/pets/123');
+      });
+
+      it('should replace multiple path params', () => {
+        const serializePath = generateSerializePath({
+          definition: {
+            openapi: '3',
+            paths: {
+              '/owners/{ownerId}/pets/{petId}': {
+                get: {
+                  parameters: [
+                    {
+                      description: 'ID of pet to fetch',
+                      in: 'path',
+                      name: 'id',
+                      required: true,
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  ],
+                  responses: {},
+                },
               },
             },
-            default: {
-              description: 'unexpected error',
-              schema: {
-                $ref: '#/definitions/ErrorModel',
+          } as unknown as OpenAPIV3.Document
+        });
+
+        const params = {
+          petId: '123',
+          ownerId: '456'
+        };
+
+        expect(serializePath({ method: 'GET', path: '/owners/{ownerId}/pets/{petId}', params })).toBe('/owners/456/pets/123');
+      });
+
+      it('should call onError if there are unresolved path params', () => {
+        const onError = jest.fn();
+        const serializePath = generateSerializePath({
+          onError,
+          definition: {
+            openapi: '3',
+            paths: {
+              '/pets/{petId}': {
+                get: {
+                  parameters: [
+                    {
+                      description: 'ID of pet to fetch',
+                      in: 'path',
+                      name: 'id',
+                      required: true,
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  ],
+                  responses: {},
+                },
               },
             },
-          },
-        },
-      },
-      '/pets/{id}': {
-        delete: {
-          description: 'deletes a single pet based on the ID supplied',
-          operationId: 'deletePet',
-          parameters: [
-            {
-              description: 'ID of pet to delete',
-              format: 'int64',
-              in: 'path',
-              name: 'id',
-              required: true,
-              type: 'integer',
-            },
-          ],
-          responses: {
-            204: {
-              description: 'pet deleted',
-            },
-            default: {
-              description: 'unexpected error',
-              schema: {
-                $ref: '#/definitions/ErrorModel',
-              },
-            },
-          },
-        },
-        get: {
-          description: 'Returns a user based on a single ID, if the user does not have access to the pet',
-          operationId: 'findPetById',
-          parameters: [
-            {
-              description: 'ID of pet to fetch',
-              in: 'path',
-              format: 'int64',
-              name: 'id',
-              required: true,
-              type: 'integer',
-            },
-          ],
-          produces: [
-            'application/json',
-            'application/xml',
-            'text/xml',
-            'text/html',
-          ],
-          responses: {
-            200: {
-              description: 'pet response',
-              schema: {
-                $ref: '#/definitions/Pet',
-              },
-            },
-            default: {
-              description: 'unexpected error',
-              schema: {
-                $ref: '#/definitions/ErrorModel',
-              },
-            },
-          },
-        },
-      },
-    },
-  },
+          } as unknown as OpenAPIV3.Document,
+        });
+
+        serializePath({ method: 'GET', path: '/pets/{petId}' });
+        expect(onError).toBeCalledTimes(1);
+        const err = onError.mock.calls[0][0];
+        expect(err).toBeInstanceOf(MissingPathParamError);
+      })
+    });
+
+    describe('querystring', () => {
+      it('should add query params', () => {})
+      it('should call onError if any required params are missing', () => {})
+    });
+
+    describe('by operationId or whatever that is called', () => {
+      
+    });
+
+    it('should call onError with any params missing params?? ')
+  });
 });
-*/
