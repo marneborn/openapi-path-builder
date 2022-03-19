@@ -1,7 +1,10 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import getBasePath from '../getBasePath';
 import { onlySupported, SupportedDocuments } from '../checkVersion';
-import MissingPathParamError from '../errors/MissingPathParamError';
+import { 
+  MissingPathParamError,
+  WrongDataTypeError,
+ } from '../errors';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
@@ -12,28 +15,26 @@ type HttpMethodLiterals = `${HttpMethods}`;
 
 type GenerateInput = {
   document: SupportedDocuments;
-  onError?: (err: Error) => void | Promise<void>;
 };
 type SerializePathInput = {
   method: HttpMethodLiterals,
   path: string,
-  params?: Record<string, string>,
+  params?: Record<string, unknown>,
 };
 type SerializePath = (args: SerializePathInput) => string | null;
 
-const isPathParam = (param: ParameterObject | ReferenceObject): param is ParameterObject => Boolean((param as ParameterObject).in);
+const isQueryParam = (param: ParameterObject | ReferenceObject): param is ParameterObject => (param as ParameterObject).in === 'query';
 
-const generateSerializePath = ({ document, onError }: GenerateInput): SerializePath => {
+const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   onlySupported(document);
   const basePath = getBasePath(document);
 
-  /*
-  const pathMethodLookup: Record<string, Record<HttpMethodLiterals, ParameterObject[]>> = {};
-  const getParamDefs = (path: string, method: HttpMethodLiterals) => {
-    if (!pathMethodLookup[path]) {
-      pathMethodLookup[path] = {} as Record<HttpMethodLiterals, ParameterObject[]>;
+  const queryParamsLookup: Record<string, Record<HttpMethodLiterals, ParameterObject[]>> = {};
+  const getQueryParams = (path: string, method: HttpMethodLiterals) => {
+    if (!queryParamsLookup[path]) {
+      queryParamsLookup[path] = {} as Record<HttpMethodLiterals, ParameterObject[]>;
     }
-    if (!pathMethodLookup[path][method]) {
+    if (!queryParamsLookup[path][method]) {
       const pathObj: PathItemObject = (document?.paths || {})[path] || {};
       const methods = Object.keys(pathObj) as HttpMethodLiterals[];
       for (let i = 0; i < methods.length; i += 1) {
@@ -41,32 +42,44 @@ const generateSerializePath = ({ document, onError }: GenerateInput): SerializeP
         const lcMethod = xcMethod.toLowerCase() as HttpMethodLiterals;
         if (method === lcMethod) {
           // @todo - support references
-          pathMethodLookup[path][method] = (pathObj[lcMethod]?.parameters || [])
-            .filter(isPathParam)
+          queryParamsLookup[path][method] = (pathObj[lcMethod]?.parameters || [])
+            .filter(isQueryParam)
         }
       }
     }
-    return pathMethodLookup[path][method] || []
+    return queryParamsLookup[path][method] || []
   };
-  */
 
   return ({ method, path, params = {} }) => {
     const paramNames = Object.keys(params);
     let serializedPath = path;
+    const paramDataTypeProblems = [];
     for (let i = 0; i < paramNames.length; i += 1) {
       const paramName = paramNames[i];
       const paramValue = params[paramName];
       if (paramValue) {
-        serializedPath = serializedPath.replace(`{${paramName}}`, paramValue);
+        if (typeof paramValue !== 'string') {
+          paramDataTypeProblems.push({
+            name: paramName,
+            expected: 'string',
+            value: paramValue,
+          });
+        }
+        serializedPath = serializedPath.replace(`{${paramName}}`, encodeURI(paramValue as string))
       }
     }
 
     const missingParamsMatch = serializedPath.match(/{[a-zA-Z0-9_-]+}/g);
     if (missingParamsMatch) {
-      if (onError) {
-        onError(new MissingPathParamError(...missingParamsMatch.map(s => s.replace(/[\{\}]/g, ''))));
-      }
+      throw new MissingPathParamError(path, ...missingParamsMatch.map(s => s.replace(/[\{\}]/g, '')));
     }
+
+    // const queryParams = getQueryParams(path, method);
+
+    if (paramDataTypeProblems.length > 0) {
+      throw new WrongDataTypeError(path, ...paramDataTypeProblems);
+    }
+
     return `${basePath}${serializedPath}`;
   };
 };

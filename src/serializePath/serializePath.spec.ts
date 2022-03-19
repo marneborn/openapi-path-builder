@@ -1,6 +1,9 @@
 import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
-import UnsupportedVersionError from '../errors/UnsupportedVersionError';
-import MissingPathParamError from '../errors/MissingPathParamError';
+import { 
+  MissingPathParamError,
+  UnsupportedVersionError,
+  WrongDataTypeError,
+ } from '../errors';
 import generateSerializePath from './index';
 
 describe('serializePath', () => {
@@ -129,8 +132,7 @@ describe('serializePath', () => {
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123');
       });
 
-      it('should call onError with a MissingPathParamError if there are missing path params', () => {
-        const onError = jest.fn();
+      it('should throw MissingPathParamError if there are missing path params', () => {
         document.paths = {
           '/pets/{petId}': {
             get: {
@@ -146,27 +148,113 @@ describe('serializePath', () => {
         };
         const serializePath = generateSerializePath({
           document,
-          onError,
         });
         const params = {};
-
-        serializePath({ method: 'get', params, path: '/pets/{petId}' });
-        expect(onError).toBeCalledTimes(1);
-        const err = onError.mock.calls[0][0];
-        expect(err).toBeInstanceOf(MissingPathParamError);
+        expect.assertions(1);
+        try {
+          serializePath({ method: 'get', params, path: '/pets/{petId}' });
+          throw new Error('Should have thrown');
+        } catch(error) {
+          expect(error).toBeInstanceOf(MissingPathParamError);
+          expect((error as MissingPathParamError).data).toEqual({
+            path: '/pets/{petId}',
+            missingParams: ['petId'],
+          })
+        }
       });
     });
 
     describe('querystring', () => {
-      it('should add query params', () => {});
+      describe('basics', () => {
+        beforeEach(() => {
+          document.paths['/pets']['get'].parameters.push({
+            name: 'foo',
+            in: 'query',
+          });
+        });
 
-      it('should call onError if any required params are missing', () => {});
+        it('should add query params', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: 'bar' } })).toContain('?foo=bar');
+        });
+
+        it('should ignore missing optional params', () => {
+          const serializePath = generateSerializePath({ document });
+          const params = {};
+  
+          serializePath({ method: 'get', params, path: '/pets' });
+        });
+
+
+        it('should throw a MissingPathParamError if any required params are missing', () => {
+          const serializePath = generateSerializePath({ document });
+          const params = {};
+          
+          try {
+            serializePath({ method: 'get', params, path: '/pets/{petId}' });
+            throw new Error('Did not throw');
+          } catch(error) {
+            expect(error).toBeInstanceOf(MissingPathParamError);
+            expect((error as MissingPathParamError).data).toEqual({
+              path: '/pets/{petId}',
+              missingParams: ['petId'],
+            })
+          }
+        });
+
+        it('should throw  a WrongTypeError if the path param is not a string', () => {
+          const serializePath = generateSerializePath({ document });
+          const params = { petId: 10 };
+  
+          try {
+            serializePath({ method: 'get', params, path: '/pets/{petId}' });
+            throw new Error('Did not throw');
+          } catch(error) {
+            expect(error).toBeInstanceOf(WrongDataTypeError);
+            expect((error as WrongDataTypeError).data).toEqual({
+              path: '/pets/{petId}',
+              problems: [{
+                name: 'petId',
+                expected: 'string',
+                value: 10,
+              }],
+            });
+          }
+        });
+      });
+
+      describe('type=number', () => {
+        it('should cast a number to a string', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '10' } })).toContain('?foo=10');
+        });
+      });
+
+      describe('type=integer', () => {
+        it('should cast a number to a string', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '10' } })).toContain('?foo=10');
+        });
+      });
+
+      describe('format=date', () => {
+        it('should cast a Date to to a date string', () => {
+          document.paths['/pets']['get'].parameters[0] = {
+            name: 'start',
+            in: 'query',
+            schema: {
+              type: 'string',
+              format: 'date',
+            }
+          };
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { start: new Date('2022-03-19T08:00:00Z') } })).toContain('?start=2022-03-19');
+        });
+      });
     });
 
     describe('by operationId or whatever that is called', () => {
 
     });
-
-    it('should call onError with any params missing params?? ', () => {});
   });
 });
