@@ -4,13 +4,13 @@ import { getVersion, isSupported, onlySupported } from '../checkVersion';
 
 const getFirstServer = (doc: OpenAPIV3.Document | OpenAPIV3_1.Document): string | null => {
   if (!doc || !doc.servers) {
-    return null
+    return null;
   }
   if (Array.isArray(doc.servers) && doc.servers.length > 0) {
     return doc.servers[0].url;
   }
   if (typeof doc.servers === 'string') {
-    return doc.servers
+    return doc.servers;
   }
   return null;
 };

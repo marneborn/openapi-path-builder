@@ -1,4 +1,6 @@
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import {
+  OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1,
+} from 'openapi-types';
 import UnsupportedVersionError from '../errors/UnsupportedVersionError';
 import * as checkVersion from './index';
 
