@@ -63,9 +63,9 @@ const generateSerializePath = ({ basePath = '', definition, onError }: GenerateI
     const ucMethod = method.toUpperCase() as Methods;
     const pathParams = pathMethodLookup[path][method] || []
 
-    for (pathParams) {
-      url = url.replace(`{${key}}`, params[key]);
-    }
+    // for (pathParams) {
+    //   url = url.replace(`{${key}}`, params[key]);
+    // }
   
     if (onError) {
       onError(new MissingPathParamError('Oops'));

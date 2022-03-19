@@ -1,6 +1,12 @@
 import getBasePath from './index';
 
-describe('getBasePath', () => {
+describe.only('getBasePath', () => {
+  describe('v2', () => {
+    it('should throw an error', () => {
+      expect(getBasePath({ swagger: '2.0.0' })).toThrow('dd');
+    });
+  });
+
   it('should return "" if there is no server', () => {})
 
   it('should return "/api" if the path in the first server is /api', () => {})
