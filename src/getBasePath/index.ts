@@ -1,7 +1,9 @@
+import { OpenAPI } from 'openapi-types';
 import * as checkVersion from '../checkVersion';
 
-const getBasePath = (): string => {
-
+const getBasePath = (doc: OpenAPI.Document): string => {
+  
+  return '';
 };
 
 export default getBasePath;
