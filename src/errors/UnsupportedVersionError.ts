@@ -1,4 +1,4 @@
-import BasicError from './BasicError';
+import BasicError, { Data } from './BasicError';
 import { SUPPORTED_VERSIONS } from '../checkVersion';
 
 export default class UnsupportedVersionError extends BasicError {
@@ -9,7 +9,7 @@ export default class UnsupportedVersionError extends BasicError {
     this.version = version;
   }
 
-  get data() {
+  get data(): Data {
     return {
       supportedVersions: SUPPORTED_VERSIONS,
       version: this.version,

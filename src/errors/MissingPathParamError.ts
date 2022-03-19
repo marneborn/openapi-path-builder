@@ -1,6 +1,6 @@
-import BasicError from './BasicError';
+import BasicError, { Data } from './BasicError';
 
-export class MissingPathParamError extends BasicError {
+export default class MissingPathParamError extends BasicError {
   private missingParams: string[];
 
   constructor(...params: string[]) {
@@ -8,7 +8,7 @@ export class MissingPathParamError extends BasicError {
     this.missingParams = [...params];
   }
 
-  get data() {
+  get data(): Data {
     return { missingParams: this.missingParams };
   }
 }

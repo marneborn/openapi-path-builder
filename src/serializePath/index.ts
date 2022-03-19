@@ -1,9 +1,10 @@
-import type { OpenAPIV3, OpenAPI } from 'openapi-types';
-import { MissingPathParamError } from '../errors';
+import type { OpenAPIV3 } from 'openapi-types';
+import { onlySupported, SupportedDocuments } from '../checkVersion';
+import MissingPathParamError from '../errors/MissingPathParamError';
 
 type GenerateInput = {
   basePath?: string;
-  document: OpenAPI.Document;
+  document: SupportedDocuments;
   onError?: (err: Error) => void | Promise<void>;
 };
 type Methods = keyof typeof OpenAPIV3.HttpMethods;
@@ -14,8 +15,8 @@ type SerializePathInput = {
 };
 type Output = (args: SerializePathInput) => string | null;
 
-const getDefByPathAndMethod = (definition: OpenAPIV3.Document, method: Methods, path: string): OpenAPIV3.PathItemObject => {
-  const paths = definition?.paths;
+const getDefByPathAndMethod = (document: SupportedDocuments, method: Methods, path: string): OpenAPIV3.PathItemObject => {
+  const paths = document?.paths;
   const pathObj = paths && paths[path];
 
   if (!pathObj) {
@@ -27,7 +28,7 @@ const getDefByPathAndMethod = (definition: OpenAPIV3.Document, method: Methods, 
 
 const isParameterObject = (obj: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject): obj is OpenAPIV3.ParameterObject => !(obj as OpenAPIV3.ReferenceObject).$ref;
 
-const buildPathMethodLookup = (definition: OpenAPIV3.Document) => {
+const buildPathMethodLookup = (definition: SupportedDocuments) => {
   const paths = definition?.paths;
   if (!paths) {
     return {};
@@ -55,6 +56,7 @@ const buildPathMethodLookup = (definition: OpenAPIV3.Document) => {
 };
 
 const generateSerializePath = ({ basePath = '', document, onError }: GenerateInput): Output => {
+  onlySupported(document);
   const pathMethodLookup = buildPathMethodLookup(document);
   console.log('pa', JSON.stringify(pathMethodLookup, null, 2));
   return ({ method, path, params = {} }) => {

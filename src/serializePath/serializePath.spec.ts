@@ -1,6 +1,6 @@
 import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
-import UnsupportedVersionError from 'src/errors/UnsupportedVersionError';
-import { MissingPathParamError } from '../errors';
+import UnsupportedVersionError from '../errors/UnsupportedVersionError';
+import MissingPathParamError from '../errors/MissingPathParamError';
 import generateSerializePath from './index';
 
 describe('serializePath', () => {
@@ -154,6 +154,7 @@ describe('serializePath', () => {
 
     describe('querystring', () => {
       it('should add query params', () => {});
+
       it('should call onError if any required params are missing', () => {});
     });
 

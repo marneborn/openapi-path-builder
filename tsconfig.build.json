@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "outDir": "dist",
-    "sourceMap": true,
+    "sourceMap": true
   },
   "include": [
     "src/**/*"

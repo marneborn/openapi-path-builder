@@ -1,6 +1,4 @@
-import {
-  OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1,
-} from 'openapi-types';
+import { OpenAPI } from 'openapi-types';
 import UnsupportedVersionError from '../errors/UnsupportedVersionError';
 import * as checkVersion from './index';
 
@@ -27,47 +25,47 @@ describe('checkVersion', () => {
     });
   });
 
-  describe('.isV3_0', () => {
+  describe('.isV30', () => {
     it('should say that swagger: 2.1.0 is not v3_0', () => {
-      expect(checkVersion.isV3_0({ swagger: '2.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV30({ swagger: '2.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that swagger: 1.1.0 is not v3_0', () => {
-      expect(checkVersion.isV3_0({ swagger: '1.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV30({ swagger: '1.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that swagger: 3.1.0 is not v3_0', () => {
-      expect(checkVersion.isV3_0({ swagger: '3.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV30({ swagger: '3.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that openapi: 3.0.0 is v3_0', () => {
-      expect(checkVersion.isV3_0({ openapi: '3.0.0' } as OpenAPI.Document)).toBe(true);
+      expect(checkVersion.isV30({ openapi: '3.0.0' } as OpenAPI.Document)).toBe(true);
     });
 
     it('should say that openapi: 3.1.1 is not v3_0', () => {
-      expect(checkVersion.isV3_0({ openapi: '3.1.1' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV30({ openapi: '3.1.1' } as OpenAPI.Document)).toBe(false);
     });
   });
 
-  describe('.isV3_1', () => {
+  describe('.isV31', () => {
     it('should say that swagger: 2.1.0 is not v3_1', () => {
-      expect(checkVersion.isV3_1({ swagger: '2.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV31({ swagger: '2.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that swagger: 1.1.0 is not v3_1', () => {
-      expect(checkVersion.isV3_1({ swagger: '1.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV31({ swagger: '1.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that swagger: 3.1.0 is not v3_1', () => {
-      expect(checkVersion.isV3_1({ swagger: '3.1.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV31({ swagger: '3.1.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that openapi: 3.0.0 is not v3_1', () => {
-      expect(checkVersion.isV3_1({ openapi: '3.0.0' } as OpenAPI.Document)).toBe(false);
+      expect(checkVersion.isV31({ openapi: '3.0.0' } as OpenAPI.Document)).toBe(false);
     });
 
     it('should say that openapi: 3.1.1 is v3_1', () => {
-      expect(checkVersion.isV3_1({ openapi: '3.1.1' } as OpenAPI.Document)).toBe(true);
+      expect(checkVersion.isV31({ openapi: '3.1.1' } as OpenAPI.Document)).toBe(true);
     });
   });
 

@@ -1,8 +1,7 @@
-import { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import UnsupportedVersionError from '../errors/UnsupportedVersionError';
-import { getVersion, isSupported, onlySupported } from '../checkVersion';
+import { getVersion, isSupported, SupportedDocuments } from '../checkVersion';
 
-const getFirstServer = (doc: OpenAPIV3.Document | OpenAPIV3_1.Document): string | null => {
+const getFirstServer = (doc: SupportedDocuments): string | null => {
   if (!doc || !doc.servers) {
     return null;
   }
@@ -15,16 +14,14 @@ const getFirstServer = (doc: OpenAPIV3.Document | OpenAPIV3_1.Document): string 
   return null;
 };
 
-const getBasePath = (doc: OpenAPI.Document): string => {
+const getBasePath = (doc: SupportedDocuments): string => {
   if (isSupported(doc)) {
     const firstServer = getFirstServer(doc);
     if (!firstServer) {
       return '';
     }
 
-    console.log('aaa', firstServer);
     const parsed = new URL(firstServer);
-    console.log('bbb', parsed);
     return (parsed?.pathname || '')
       .replace(/\/+$/, '')
       .replace(/^\/+/, '/');
