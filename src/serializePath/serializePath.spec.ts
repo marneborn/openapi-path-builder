@@ -5,7 +5,7 @@ import generateSerializePath from './index';
 
 describe('serializePath', () => {
   describe('openapi v2', () => {
-    let document: OpenAPIV2.Document;
+    let document: any;
     beforeEach(() => {
       document = {
         info: { title: 'test', version: 'v1' },
@@ -49,7 +49,7 @@ describe('serializePath', () => {
           document,
         });
 
-        expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/pets');
+        expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets' })).toBe('/pets');
       });
 
       it('should prepend the path from the server', () => {
@@ -58,7 +58,7 @@ describe('serializePath', () => {
           document,
         });
 
-        expect(serializePath({ method: 'GET', path: '/pets' })).toBe('/api/pets');
+        expect(serializePath({ method: 'get', path: '/pets' })).toBe('/api/pets');
       });
 
       it('should replace a path param', () => {
@@ -67,13 +67,8 @@ describe('serializePath', () => {
             get: {
               parameters: [
                 {
-                  description: 'ID of pet to fetch',
                   in: 'path',
-                  name: 'id',
-                  required: true,
-                  schema: {
-                    type: 'string',
-                  },
+                  name: 'petId',
                 },
               ],
               responses: {},
@@ -84,7 +79,7 @@ describe('serializePath', () => {
           document,
         });
         const params = { petId: '123' };
-        expect(serializePath({ method: 'GET', params, path: '/pets/{petId}' })).toBe('/pets/123');
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123');
       });
 
       it('should replace multiple path params', () => {
@@ -93,13 +88,12 @@ describe('serializePath', () => {
             get: {
               parameters: [
                 {
-                  description: 'ID of pet to fetch',
                   in: 'path',
-                  name: 'id',
-                  required: true,
-                  schema: {
-                    type: 'string',
-                  },
+                  name: 'ownerId',
+                },
+                {
+                  in: 'path',
+                  name: 'petId',
                 },
               ],
               responses: {},
@@ -116,7 +110,23 @@ describe('serializePath', () => {
           petId: '123',
         };
 
-        expect(serializePath({ method: 'GET', params, path: '/owners/{ownerId}/pets/{petId}' })).toBe('/owners/456/pets/123');
+        expect(serializePath({ method: 'get', params, path: '/owners/{ownerId}/pets/{petId}' })).toBe('/owners/456/pets/123');
+      });
+
+      it('should not need parameter definitions', () => {
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: '123' };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123');
       });
 
       it('should call onError with a MissingPathParamError if there are missing path params', () => {
@@ -126,13 +136,8 @@ describe('serializePath', () => {
             get: {
               parameters: [
                 {
-                  description: 'ID of pet to fetch',
                   in: 'path',
-                  name: 'id',
-                  required: true,
-                  schema: {
-                    type: 'string',
-                  },
+                  name: 'petId',
                 },
               ],
               responses: {},
@@ -145,7 +150,7 @@ describe('serializePath', () => {
         });
         const params = {};
 
-        serializePath({ method: 'GET', params, path: '/pets/{petId}' });
+        serializePath({ method: 'get', params, path: '/pets/{petId}' });
         expect(onError).toBeCalledTimes(1);
         const err = onError.mock.calls[0][0];
         expect(err).toBeInstanceOf(MissingPathParamError);
