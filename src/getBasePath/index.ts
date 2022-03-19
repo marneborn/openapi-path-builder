@@ -1,8 +1,8 @@
 import { OpenAPI } from 'openapi-types';
-import * as checkVersion from '../checkVersion';
+import { onlySupported } from '../checkVersion';
 
 const getBasePath = (doc: OpenAPI.Document): string => {
-  
+  onlySupported(doc);
   return '';
 };
 
