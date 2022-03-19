@@ -27,9 +27,9 @@ describe('serializePath', () => {
         // openapi v3 has a server: ServerObject[] instead of hostname + baseUrl
         // use getBasePath to extract the basePath from the definition in v3
         const serializePath = generateSerializePath({
-          basePath: '/api',
           definition: {
             openapi: '3',
+            servers: ['http://petstore.com/api',
             paths: {
               '/pets': {
                 get: {

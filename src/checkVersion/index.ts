@@ -1,7 +1,7 @@
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import UnsupportedVersionError from "../errors/UnsupportedVersionError";
 
-const getVersion = (doc: OpenAPI.Document): string | undefined => (doc as OpenAPIV2.Document)?.swagger || (doc as OpenAPIV3.Document)?.openapi;
+export const getVersion = (doc: OpenAPI.Document): string | undefined => (doc as OpenAPIV2.Document)?.swagger || (doc as OpenAPIV3.Document)?.openapi;
 
 export const isV2 = (doc: OpenAPI.Document): doc is OpenAPIV2.Document => {
   const version = getVersion(doc);
@@ -18,7 +18,7 @@ export const isV3_1 = (doc: OpenAPI.Document): doc is OpenAPIV3_1.Document => {
   return Boolean(version) && /^3\.1/.test(version);
 }
 
-export const isSupported = (doc: OpenAPI.Document): doc is OpenAPIV3_1.Document => isV3_0(doc) || isV3_1(doc);
+export const isSupported = (doc: OpenAPI.Document): doc is OpenAPIV3.Document | OpenAPIV3_1.Document => isV3_0(doc) || isV3_1(doc);
 
 export const onlySupported = (doc: OpenAPI.Document): void => {
   if (!isSupported(doc)) {
