@@ -1,4 +1,4 @@
-import UnsupportedVersionError from '../errors/UnsupportedVersionError';
+import { UnsupportedVersionError } from '$errors';
 import getBasePath from './index';
 
 describe.only('getBasePath', () => {

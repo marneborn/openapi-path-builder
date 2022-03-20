@@ -1,13 +1,13 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
-import getBasePath from '../getBasePath';
-import { onlySupported, SupportedDocuments } from '../checkVersion';
+import getBasePath from '$getBasePath';
+import { onlySupported, SupportedDocuments } from '$checkVersion';
 import { 
   MissingPathParamError,
   WrongDataTypeError,
- } from '../errors';
-import buildQueryObject from './buildSearchParams';
+ } from '$errors';
+ import { DataTypeProblem } from '$errors/WrongDataTypeError';
+ import buildQueryObject from './buildSearchParams';
 import buildSearchParams from './buildSearchParams';
-import { DataTypeProblem } from 'src/errors/WrongDataTypeError';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
@@ -82,7 +82,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
     paramDataTypeProblems.push(...queryParamDataTypeProblems);
     const queryString = searchParams.toString();
     if (queryString) {
-      serializedPath = `${serializedPath}?${queryString}`;
+      serializedPath = `${serializedPath}?${encodeURI(queryString)}`;
     }
 
     if (paramDataTypeProblems.length > 0) {

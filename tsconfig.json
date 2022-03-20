@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "src/",
     "declaration": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
@@ -10,6 +10,16 @@
     "noEmit": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "paths": {
+      "$getBasePath": ["getBasePath"],
+      "$checkVersion": ["checkVersion"],
+      "$checkVersion/*": ["checkVersion/*"],
+      "$errors": ["errors"],
+      "$errors/*": ["errors/*"],
+      "$formatQueryString/*": ["formatQueryString/*"],
+      "$is/*": ["is/*"],
+      "$typings": ["typings"],
+    },
     "rootDir": "src/",
     "strict": true,
     "strictFunctionTypes": true,

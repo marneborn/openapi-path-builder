@@ -1,7 +1,7 @@
 import {
   OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1,
 } from 'openapi-types';
-import UnsupportedVersionError from '../errors/UnsupportedVersionError';
+import { UnsupportedVersionError } from '$errors';
 
 export const getVersion = (doc: OpenAPI.Document): string | undefined => (doc as OpenAPIV2.Document)?.swagger || (doc as OpenAPIV3.Document)?.openapi;
 

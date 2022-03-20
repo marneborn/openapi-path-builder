@@ -1,9 +1,9 @@
-import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
+import { OpenAPIV3 } from 'openapi-types';
 import { 
   MissingPathParamError,
   UnsupportedVersionError,
   WrongDataTypeError,
- } from '../errors';
+ } from '$errors';
 import generateSerializePath from './index';
 
 describe('serializePath', () => {
@@ -241,13 +241,13 @@ describe('serializePath', () => {
         });
 
         it('should say "false" for false if the is no schema', () => {
-          delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
+          // delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
           const serializePath = generateSerializePath({ document });
           expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: false } })).toContain('?foo=false');
         });
 
         it('should say "true" for true if the is no schema', () => {
-          delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
+          // delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
           const serializePath = generateSerializePath({ document });
           expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: false } })).toContain('?foo=false');
         });
@@ -313,7 +313,6 @@ describe('serializePath', () => {
     });
 
     describe('by operationId or whatever that is called', () => {
-
     });
   });
 });

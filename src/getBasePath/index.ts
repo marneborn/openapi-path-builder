@@ -1,5 +1,5 @@
-import UnsupportedVersionError from '../errors/UnsupportedVersionError';
-import { getVersion, isSupported, SupportedDocuments } from '../checkVersion';
+import { UnsupportedVersionError } from '$errors';
+import { getVersion, isSupported, SupportedDocuments } from '$checkVersion';
 
 const getFirstServer = (doc: SupportedDocuments): string | null => {
   if (!doc || !doc.servers) {

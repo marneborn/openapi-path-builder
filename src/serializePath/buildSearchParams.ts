@@ -1,5 +1,5 @@
 import { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
-import type { DataTypeProblem } from '../errors/WrongDataTypeError';
+import type { DataTypeProblem } from '$errors/WrongDataTypeError';
 
 console.log('duplicated ....')
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;

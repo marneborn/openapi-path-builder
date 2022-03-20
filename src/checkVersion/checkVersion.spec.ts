@@ -1,5 +1,5 @@
 import { OpenAPI } from 'openapi-types';
-import UnsupportedVersionError from '../errors/UnsupportedVersionError';
+import { UnsupportedVersionError } from '$errors';
 import * as checkVersion from './index';
 
 describe('checkVersion', () => {
