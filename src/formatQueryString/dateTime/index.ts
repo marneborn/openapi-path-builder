@@ -3,7 +3,7 @@ import { WrongDataTypeError } from '$errors';
 import { Formatter } from '../typings';
 
 const formatDateTime: Formatter<string | Date> = (value, options) => {
-  let asString: string = '';
+  let asString = '';
   if (typeof value === 'string') {
     asString = value;
   }
@@ -16,10 +16,10 @@ const formatDateTime: Formatter<string | Date> = (value, options) => {
   }
 
   throw new WrongDataTypeError(options.path, {
+    expected: 'string:date-time',
     name: options.name,
     value,
-    expected: 'string:date-time',
-  });  
-}
+  });
+};
 
 export default formatDateTime;

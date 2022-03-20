@@ -7,8 +7,8 @@ describe('formatQueryString/dateTime', () => {
 
   beforeEach(() => {
     options = {
-      path: '/foo',
       name: 'aParam',
+      path: '/foo',
     };
   });
 
@@ -23,28 +23,28 @@ describe('formatQueryString/dateTime', () => {
 
   it('should throw an error if the value is boolean', () => {
     const value = true;
-    const error = getThrownError(() => formatDateTime(value as any, options));
+    const error = getThrownError(() => formatDateTime(value as any, options)); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(error).toBeInstanceOf(WrongDataTypeError);
     expect((error as WrongDataTypeError).data).toEqual({
       path: options.path,
       problems: [{
-        value,
-        name: options.name,
         expected: 'string:date-time',
+        name: options.name,
+        value,
       }],
     });
   });
 
   it('should throw an error if the value is a string that is not formatted correctly', () => {
     const value = '10';
-    const error = getThrownError(() => formatDateTime(value as any, options))
+    const error = getThrownError(() => formatDateTime(value as any, options)); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(error).toBeInstanceOf(WrongDataTypeError);
     expect((error as WrongDataTypeError).data).toEqual({
       path: options.path,
       problems: [{
-        value,
-        name: options.name,
         expected: 'string:date-time',
+        name: options.name,
+        value,
       }],
     });
   });

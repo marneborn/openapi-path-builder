@@ -13,10 +13,10 @@ const formatEmail: Formatter<string | Date> = (value, options) => {
   }
 
   throw new WrongDataTypeError(options.path, {
+    expected: 'string:email',
     name: options.name,
     value,
-    expected: 'string:email',
-  });  
-}
+  });
+};
 
 export default formatEmail;

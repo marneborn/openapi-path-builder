@@ -15,10 +15,10 @@ const formatNumber: Formatter<number> = (value, options) => {
   }
 
   throw new WrongDataTypeError(options.path, {
+    expected: 'number',
     name: options.name,
     value,
-    expected: 'number',
-  });  
-}
+  });
+};
 
 export default formatNumber;

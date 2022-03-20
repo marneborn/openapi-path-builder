@@ -1,5 +1,5 @@
-import BasicError, { Data } from './BasicError';
 import { SUPPORTED_VERSIONS } from '$checkVersion';
+import BasicError, { Data } from './BasicError';
 
 export default class UnsupportedVersionError extends BasicError {
   private version: string;

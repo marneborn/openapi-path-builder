@@ -7,8 +7,8 @@ describe('formatQueryString/dateOnly', () => {
 
   beforeEach(() => {
     options = {
-      path: '/foo',
       name: 'aParam',
+      path: '/foo',
     };
   });
 
@@ -25,28 +25,28 @@ describe('formatQueryString/dateOnly', () => {
 
   it('should throw an error if the value is boolean', () => {
     const value = true;
-    const error = getThrownError(() => formatDateOnly(value as any, options))
+    const error = getThrownError(() => formatDateOnly(value as any, options)); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(error).toBeInstanceOf(WrongDataTypeError);
     expect((error as WrongDataTypeError).data).toEqual({
       path: options.path,
       problems: [{
-        value,
-        name: options.name,
         expected: 'string:date',
+        name: options.name,
+        value,
       }],
     });
   });
 
   it('should throw an error if the value is a string that is not formatted correctly', () => {
     const value = '10';
-    const error = getThrownError(() => formatDateOnly(value as any, options))
+    const error = getThrownError(() => formatDateOnly(value as any, options)); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(error).toBeInstanceOf(WrongDataTypeError);
     expect((error as WrongDataTypeError).data).toEqual({
       path: options.path,
       problems: [{
-        value,
-        name: options.name,
         expected: 'string:date',
+        name: options.name,
+        value,
       }],
     });
   });

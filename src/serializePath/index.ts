@@ -1,17 +1,15 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import getBasePath from '$getBasePath';
 import { onlySupported, SupportedDocuments } from '$checkVersion';
-import { 
+import {
   MissingPathParamError,
   WrongDataTypeError,
- } from '$errors';
- import { DataTypeProblem } from '$errors/WrongDataTypeError';
- import buildQueryObject from './buildSearchParams';
+} from '$errors';
+import { DataTypeProblem } from '$errors/WrongDataTypeError';
 import buildSearchParams from './buildSearchParams';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
-type PathsObject = OpenAPIV3.PathsObject | OpenAPIV3_1.PathsObject;
 type PathItemObject = OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject;
 type HttpMethods = OpenAPIV3.HttpMethods;
 type HttpMethodLiterals = `${HttpMethods}`;
@@ -33,7 +31,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   const basePath = getBasePath(document);
 
   const queryParamsLookup: Record<string, Record<HttpMethodLiterals, ParameterObject[]>> = {};
-  const getQueryParamObjects = (path: string, method: HttpMethodLiterals) => {
+  const getQueryParamObjects = (path: string, method: HttpMethodLiterals): ParameterObject[] => {
     if (!queryParamsLookup[path]) {
       queryParamsLookup[path] = {} as Record<HttpMethodLiterals, ParameterObject[]>;
     }
@@ -46,11 +44,11 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
         if (method === lcMethod) {
           // @todo - support references
           queryParamsLookup[path][method] = (pathObj[lcMethod]?.parameters || [])
-            .filter(isQueryParam)
+            .filter(isQueryParam);
         }
       }
     }
-    return queryParamsLookup[path][method] || []
+    return queryParamsLookup[path][method] || [];
   };
 
   return ({ method, path, params = {} }) => {
@@ -63,18 +61,18 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
       if (paramValue) {
         if (typeof paramValue !== 'string') {
           paramDataTypeProblems.push({
-            name: paramName,
             expected: 'string',
+            name: paramName,
             value: paramValue,
           });
         }
-        serializedPath = serializedPath.replace(`{${paramName}}`, encodeURI(paramValue as string))
+        serializedPath = serializedPath.replace(`{${paramName}}`, encodeURI(paramValue as string));
       }
     }
 
     const missingParamsMatch = serializedPath.match(/{[a-zA-Z0-9_-]+}/g);
     if (missingParamsMatch) {
-      throw new MissingPathParamError(path, ...missingParamsMatch.map(s => s.replace(/[\{\}]/g, '')));
+      throw new MissingPathParamError(path, ...missingParamsMatch.map((s) => s.replace(/[{}]/g, '')));
     }
 
     const queryParams = getQueryParamObjects(path, method);

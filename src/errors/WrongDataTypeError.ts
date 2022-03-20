@@ -8,6 +8,7 @@ export type DataTypeProblem = {
 
 export default class WrongDataTypeError extends BasicError {
   private path: string;
+
   private problems: DataTypeProblem[];
 
   constructor(path: string, ...problems: DataTypeProblem[]) {
@@ -17,9 +18,9 @@ export default class WrongDataTypeError extends BasicError {
   }
 
   get data(): Data {
-    return { 
+    return {
       path: this.path,
       problems: this.problems,
-     };
+    };
   }
 }

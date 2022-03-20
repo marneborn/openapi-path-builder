@@ -2,6 +2,7 @@ import BasicError, { Data } from './BasicError';
 
 export default class MissingPathParamError extends BasicError {
   private path: string;
+
   private missingParams: string[];
 
   constructor(path: string, ...params: string[]) {
@@ -11,9 +12,9 @@ export default class MissingPathParamError extends BasicError {
   }
 
   get data(): Data {
-    return { 
-      path: this.path,
+    return {
       missingParams: this.missingParams,
-     };
+      path: this.path,
+    };
   }
 }

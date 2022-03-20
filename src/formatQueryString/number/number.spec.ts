@@ -7,8 +7,8 @@ describe('formatQueryString/number', () => {
 
   beforeEach(() => {
     options = {
-      path: '/foo',
       name: 'aParam',
+      path: '/foo',
     };
   });
 
@@ -26,14 +26,14 @@ describe('formatQueryString/number', () => {
 
   it('should throw an error if the value is not a string', () => {
     const value = false;
-    const error = getThrownError(() => formatNumber(value as any, options))
+    const error = getThrownError(() => formatNumber(value as any, options)); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(error).toBeInstanceOf(WrongDataTypeError);
     expect((error as WrongDataTypeError).data).toEqual({
       path: options.path,
       problems: [{
-        value,
-        name: options.name,
         expected: 'number',
+        name: options.name,
+        value,
       }],
     });
   });
