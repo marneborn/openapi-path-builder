@@ -1,4 +1,4 @@
-const owner = 'karve-vc';
-const repo = 'noodle-api';
+const owner = 'marneborn';
+const repo = 'openapi-path-builder';
 
 module.exports = { owner, repo };
