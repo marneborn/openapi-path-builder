@@ -12,7 +12,7 @@ async function run() {
   try {
     const createReleaseResponse = await octokit.rest.repos.createRelease({
       body: `https://github.com/${owner}/${repo}/pull/${prNumber}`,
-      draft: false,
+      draft: true,
       name: `v${version} - ${new Date().toISOString()}`,
       owner,
       prerelease: false,
@@ -22,9 +22,10 @@ async function run() {
     });
 
     const {
-      data: { id: releaseId, html_url: htmlUrl },
+      data: { id: releaseId, html_url: htmlUrl, tag_name: tagName },
     } = createReleaseResponse;
-    core.debug(`Create release ${version} (${releaseId}): ${htmlUrl}.`);
+    core.debug(`Create release ${tagName} (${releaseId}): ${htmlUrl}.`);
+    core.setOutput('releaseId', releaseId);
   } catch (error) {
     core.setFailed(error.message);
   }
