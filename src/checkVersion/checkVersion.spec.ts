@@ -108,7 +108,7 @@ describe('checkVersion', () => {
       expect(checkVersion.onlySupported({ openapi: '3.0.0' } as OpenAPI.Document)).toBe(undefined);
     });
 
-    it.only('should say that openapi: 3.1.1 is supported', () => {
+    it('should say that openapi: 3.1.1 is supported', () => {
       expect(checkVersion.onlySupported({ openapi: '3.1.1' } as OpenAPI.Document)).toBe(undefined);
     });
   });

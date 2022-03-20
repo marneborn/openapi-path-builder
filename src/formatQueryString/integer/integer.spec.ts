@@ -54,7 +54,7 @@ describe('formatQueryString/integer', () => {
       expect(formatInteger('11.1' as any, options)).toBe('11');
     });
 
-    it.only('should round up "11.9"', () => {
+    it('should round up "11.9"', () => {
       expect(formatInteger('11.9' as any, options)).toBe('12');
     });
 

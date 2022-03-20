@@ -1,7 +1,7 @@
 import { UnsupportedVersionError } from '$errors';
 import getBasePath from './index';
 
-describe.only('getBasePath', () => {
+describe('getBasePath', () => {
   describe('v2', () => {
     it('should throw an error', () => {
       expect(() => getBasePath({ swagger: '2.0.0' } as any)).toThrow(UnsupportedVersionError);

@@ -54,7 +54,7 @@ describe('formatQueryString/number', () => {
       expect(formatNumber('11.1' as any, options)).toBe('11.1');
     });
 
-    it.only('should pass through "11.9"', () => {
+    it('should pass through "11.9"', () => {
       expect(formatNumber('11.9' as any, options)).toBe('11.9');
     });
 
