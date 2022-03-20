@@ -21,19 +21,13 @@ type SerializePathInput = {
 };
 type SerializePath = (args: SerializePathInput) => string | null;
 
-const replaceAllPathParam: (str: string, pattern: string, replaceWith: string) => string = (
-  String.prototype.replaceAll
-    ? (str, pattern, replaceWith) => str.replaceAll(`{${pattern}}`, replaceWith)
-    : (str, pattern, replaceWith) => str.replace(new RegExp(`{${pattern}}`, 'g'), replaceWith)
-);
-
 const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   onlySupported(document);
   const basePath = getBasePath(document);
 
   return ({ path, params = {} }) => {
     const paramDataTypeProblems: DataTypeProblem[] = [];
-    const serializedPath = expandPathParams(path, params, paramDataTypeProblems)
+    const serializedPath = expandPathParams({ path, params, paramDataTypeProblems });
 
     if (paramDataTypeProblems.length > 0) {
       throw new WrongDataTypeError(path, ...paramDataTypeProblems);

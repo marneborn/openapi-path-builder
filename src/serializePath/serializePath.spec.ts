@@ -113,6 +113,7 @@ describe('serializePath', () => {
                 {
                   in: 'path',
                   name: 'petId',
+                  schema: { type: 'integer' }
                 },
               ],
               responses: {},
@@ -126,6 +127,78 @@ describe('serializePath', () => {
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/572');
       });
 
+      it('should allow numbers', () => {
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                  schema: { type: 'number' }
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: 0.45 };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/0.45');
+      });
+
+      // @todo - implement
+      it.skip('should allow dateOnly', () => {
+        const date = new Date();
+        date.setFullYear(2021);
+        date.setMonth(3);
+        date.setDate(23);
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                  schema: { type: 'string', format: 'date' }
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: date };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/2021-04-23');
+      });
+
+      it('should allow dateTime', () => {
+        const date = new Date('2022-03-20T16:54:00.331Z');
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                  schema: { type: 'string', format: 'date' }
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: date };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/2022-03-20T16:54:00.331Z');
+      });
+      
       it('should replace multiple path params', () => {
         document.paths = {
           '/owners/{ownerId}/pets/{petId}': {
