@@ -1,5 +1,5 @@
 import { UnsupportedVersionError } from '$errors';
-import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
+import { OpenAPIV3 } from 'openapi-types';
 import getBasePath from './index';
 
 describe('getBasePath', () => {

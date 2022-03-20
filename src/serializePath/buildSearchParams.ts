@@ -1,7 +1,7 @@
 import { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import type { DataTypeProblem } from '$errors/WrongDataTypeError';
 
-console.log('duplicated ....');
+// @todo
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
 

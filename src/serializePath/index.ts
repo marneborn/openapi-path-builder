@@ -7,6 +7,7 @@ import {
 } from '$errors';
 import { DataTypeProblem } from '$errors/WrongDataTypeError';
 import buildSearchParams from './buildSearchParams';
+import type {} from '$typings';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;

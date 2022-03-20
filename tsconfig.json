@@ -15,7 +15,8 @@
       "$checkVersion": ["checkVersion"],
       "$checkVersion/*": ["checkVersion/*"],
       "$errors": ["errors"],
-      "$errors/*": ["errors/*"]
+      "$errors/*": ["errors/*"],
+      "$typings": ["typings"]
     },
     "rootDir": ".",
     "strict": true,
