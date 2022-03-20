@@ -105,6 +105,27 @@ describe('serializePath', () => {
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123%20with%20space');
       });
 
+      it('should allow integers', () => {
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: 572};
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/572');
+      });
+
       it('should replace multiple path params', () => {
         document.paths = {
           '/owners/{ownerId}/pets/{petId}': {
