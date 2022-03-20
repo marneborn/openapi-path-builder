@@ -2,8 +2,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 const releaseId = core.getInput('releaseId');
-const token = core.getInput('GITHUB_TOKEN');
-const octokit = github.getOctokit(token);
+const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
 async function run() {
   try {

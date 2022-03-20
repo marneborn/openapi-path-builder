@@ -45,15 +45,17 @@ jobs:
       - name: Create draft release
         id: create-release
         uses: ./.github/actions/create-release
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           version: ${{ steps.increment-version.outputs.version }}
           pr-num: ${{ github.event.pull_request.number }}
       - name: Publish release
         id: publish-release
         uses: ./.github/actions/publish-release
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           releaseId: ${{ steps.create-release.outputs.releaseId }}
       # TODO - deploy to npm
       # Would rather do that on each release creation.
