@@ -5,6 +5,9 @@ import {
   MissingPathParamError,
   WrongDataTypeError,
  } from '../errors';
+import buildQueryObject from './buildSearchParams';
+import buildSearchParams from './buildSearchParams';
+import { DataTypeProblem } from 'src/errors/WrongDataTypeError';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
@@ -30,7 +33,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   const basePath = getBasePath(document);
 
   const queryParamsLookup: Record<string, Record<HttpMethodLiterals, ParameterObject[]>> = {};
-  const getQueryParams = (path: string, method: HttpMethodLiterals) => {
+  const getQueryParamObjects = (path: string, method: HttpMethodLiterals) => {
     if (!queryParamsLookup[path]) {
       queryParamsLookup[path] = {} as Record<HttpMethodLiterals, ParameterObject[]>;
     }
@@ -53,7 +56,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   return ({ method, path, params = {} }) => {
     const paramNames = Object.keys(params);
     let serializedPath = path;
-    const paramDataTypeProblems = [];
+    const paramDataTypeProblems: DataTypeProblem[] = [];
     for (let i = 0; i < paramNames.length; i += 1) {
       const paramName = paramNames[i];
       const paramValue = params[paramName];
@@ -74,7 +77,13 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
       throw new MissingPathParamError(path, ...missingParamsMatch.map(s => s.replace(/[\{\}]/g, '')));
     }
 
-    // const queryParams = getQueryParams(path, method);
+    const queryParams = getQueryParamObjects(path, method);
+    const [searchParams, queryParamDataTypeProblems] = buildSearchParams(queryParams, params);
+    paramDataTypeProblems.push(...queryParamDataTypeProblems);
+    const queryString = searchParams.toString();
+    if (queryString) {
+      serializedPath = `${serializedPath}?${queryString}`;
+    }
 
     if (paramDataTypeProblems.length > 0) {
       throw new WrongDataTypeError(path, ...paramDataTypeProblems);

@@ -150,7 +150,6 @@ describe('serializePath', () => {
           document,
         });
         const params = {};
-        expect.assertions(1);
         try {
           serializePath({ method: 'get', params, path: '/pets/{petId}' });
           throw new Error('Should have thrown');
@@ -165,13 +164,14 @@ describe('serializePath', () => {
     });
 
     describe('querystring', () => {
-      describe('basics', () => {
-        beforeEach(() => {
-          document.paths['/pets']['get'].parameters.push({
-            name: 'foo',
-            in: 'query',
-          });
+      beforeEach(() => {
+        document.paths['/pets']['get'].parameters.push({
+          name: 'foo',
+          in: 'query',
         });
+      });
+
+      describe('basics', () => {
 
         it('should add query params', () => {
           const serializePath = generateSerializePath({ document });
@@ -223,21 +223,80 @@ describe('serializePath', () => {
         });
       });
 
-      describe('type=number', () => {
-        it('should cast a number to a string', () => {
+      describe('type=boolean', () => {
+        beforeEach(() => {
+          (document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema = {
+            type: 'boolean'
+          };
+        });
+
+        it('should say "true" for true', () => {
           const serializePath = generateSerializePath({ document });
-          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '10' } })).toContain('?foo=10');
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: true } })).toContain('?foo=true');
+        });
+
+        it('should say "false" for false', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: false } })).toContain('?foo=false');
+        });
+
+        it('should say "false" for false if the is no schema', () => {
+          delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: false } })).toContain('?foo=false');
+        });
+
+        it('should say "true" for true if the is no schema', () => {
+          delete document.paths['/pets']['get'].parameters[0] as OpenAPIV3.ParameterObject).schema;
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: false } })).toContain('?foo=false');
+        });
+
+        it('should throw an error for ""', () => {
+          try {
+            const serializePath = generateSerializePath({ document });
+            serializePath({ method: 'get', params: { foo: '' }, path: '/pets/{petId}' });
+            throw new Error('Did not throw');
+          } catch(error) {
+            expect(error).toBeInstanceOf(WrongDataTypeError);
+            expect((error as WrongDataTypeError).data).toEqual({
+              path: '/pets/{petId}',
+              problems: [{
+                name: 'petId',
+                expected: 'string',
+                value: 10,
+              }],
+            });
+          }
+
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '' } })).toContain('?foo=10');
         });
       });
 
       describe('type=integer', () => {
         it('should cast a number to a string', () => {
           const serializePath = generateSerializePath({ document });
-          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '10' } })).toContain('?foo=10');
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: 10 } })).toContain('?foo=10');
+        });
+        it('should round a 10.1 down', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: 10.1 } })).toContain('?foo=10');
+        });
+        it('should round a 10.9 up', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: 10.9 } })).toContain('?foo=10');
         });
       });
 
-      describe('format=date', () => {
+      describe('type=number', () => {
+        it('should cast a number to a string', () => {
+          const serializePath = generateSerializePath({ document });
+          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: 10 } })).toContain('?foo=10');
+        });
+      });
+
+      describe.skip('format=date', () => {
         it('should cast a Date to to a date string', () => {
           document.paths['/pets']['get'].parameters[0] = {
             name: 'start',
