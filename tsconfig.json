@@ -19,7 +19,7 @@
       "$formatQueryString/*": ["formatQueryString/*"],
       "$is/*": ["is/*"],
     },
-    "rootDir": "./",
+    "rootDir": ".",
     "strict": true,
     "strictFunctionTypes": true,
     "strictNullChecks": false,
@@ -27,7 +27,8 @@
     "target": "es6"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*",
   ],
   "exclude": [
     "node_modules"

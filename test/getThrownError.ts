@@ -1,4 +1,4 @@
-const getThrownError = (fn: () => unknown): Error | undefined => {
+const getThrownError = (fn: () => unknown): Error | void => {
   try {
     fn();
   } catch(error) {
