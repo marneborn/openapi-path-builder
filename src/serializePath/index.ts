@@ -6,10 +6,7 @@ import {
 } from '$errors';
 import { DataTypeProblem } from '$errors/WrongDataTypeError';
 import type {
-  ParameterObject,
-  ReferenceObject,
-  PathItemObject,
-  HttpMethodLiterals
+  HttpMethodLiterals,
 } from '$types';
 
 type GenerateInput = {
@@ -22,8 +19,6 @@ type SerializePathInput = {
 };
 type SerializePath = (args: SerializePathInput) => string | null;
 
-const isQueryParam = (param: ParameterObject | ReferenceObject): param is ParameterObject => (param as ParameterObject).in === 'query';
-
 const replaceAllPathParam: (str: string, pattern: string, replaceWith: string) => string = (
   String.prototype.replaceAll
     ? (str, pattern, replaceWith) => str.replaceAll(`{${pattern}}`, replaceWith)
@@ -34,28 +29,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   onlySupported(document);
   const basePath = getBasePath(document);
 
-  const queryParamsLookup: Record<string, Record<HttpMethodLiterals, ParameterObject[]>> = {};
-  const getQueryParamObjects = (path: string, method: HttpMethodLiterals): ParameterObject[] => {
-    if (!queryParamsLookup[path]) {
-      queryParamsLookup[path] = {} as Record<HttpMethodLiterals, ParameterObject[]>;
-    }
-    if (!queryParamsLookup[path][method]) {
-      const pathObj: PathItemObject = (document?.paths || {})[path] || {};
-      const methods = Object.keys(pathObj) as HttpMethodLiterals[];
-      for (let i = 0; i < methods.length; i += 1) {
-        const xcMethod = methods[i];
-        const lcMethod = xcMethod.toLowerCase() as HttpMethodLiterals;
-        if (method === lcMethod) {
-          // @todo - support references
-          queryParamsLookup[path][method] = (pathObj[lcMethod]?.parameters || [])
-            .filter(isQueryParam);
-        }
-      }
-    }
-    return queryParamsLookup[path][method] || [];
-  };
-
-  return ({ method, path, params = {} }) => {
+  return ({ path, params = {} }) => {
     const paramNames = Object.keys(params);
     let serializedPath = path;
     const paramDataTypeProblems: DataTypeProblem[] = [];
