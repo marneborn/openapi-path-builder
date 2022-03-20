@@ -9,7 +9,7 @@ const labelToVersion = {
 
 try {
   core.debug('Forced type for testing:');
-  core.setOutput('releaseType', labelToVersion('release-minor'));
+  core.setOutput('releaseType', labelToVersion['release-minor']);
 
   // const labelNames = github.context.payload.pull_request.labels
   //   .map((label) => label.name)
