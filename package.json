@@ -28,7 +28,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc  --project tsconfig.build.json",
     "build:check": "tsc",
-    "lint:js": "eslint *.js *.json .*.js .*.json src --ext .ts,.json --no-error-on-unmatched-pattern",
+    "lint:js": "eslint *.js *.json .*.js .*.json .github src --ext .js,.ts,.json --no-error-on-unmatched-pattern",
     "lint:js:fix": "yarn lint:js --fix",
     "lint:yaml": "yamllint **/*.yml **/*.yaml --ignore=node_modules/**/*.yml --ignore=node_modules/**/*.yaml",
     "test": "jest --ci",
