@@ -14,7 +14,7 @@ const handleNonString = (value: unknown): string => {
   return '' + value;
 };
 
-const serializeString: Formatter<string> = (value, options) => {
+const formatString: Formatter<string> = (value, options) => {
   if (typeof value === 'string') {
     return value;
   }
@@ -30,4 +30,4 @@ const serializeString: Formatter<string> = (value, options) => {
   return handleNonString(value);
 }
 
-export default serializeString;
+export default formatString;

@@ -2,7 +2,7 @@ import { WrongDataTypeError } from '$errors';
 import formatString from './index';
 import getThrownError from '../../../test/getThrownError';
 
-describe('formatQueryString/boolean', () => {
+describe('formatQueryString/string', () => {
   let options: Parameters<typeof formatString>[1];
 
   beforeEach(() => {
@@ -24,9 +24,12 @@ describe('formatQueryString/boolean', () => {
       expect(error).toBeInstanceOf(WrongDataTypeError);
       expect((error as WrongDataTypeError).data).toEqual({
         path: options.path,
-        value,
-        name: options.name,
-      })
+        problems: [{
+          value,
+          name: options.name,
+          expected: 'string',
+        }],
+      });
     });
   });
 
@@ -40,11 +43,11 @@ describe('formatQueryString/boolean', () => {
     });
 
     it('should convert false to "true"', () => {
-      expect(formatString(false as any, options)).toBe('true');
+      expect(formatString(true as any, options)).toBe('true');
     });
 
     it('should convert undefined to ""', () => {
-      expect(formatString(undefined, options)).toBe('false');
+      expect(formatString(undefined, options)).toBe('');
     });
 
     it('should convert null to ""', () => {

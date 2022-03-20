@@ -17,7 +17,7 @@
       "$errors": ["errors"],
       "$errors/*": ["errors/*"],
       "$formatQueryString/*": ["formatQueryString/*"],
-      "$is/*": ["is/*"],
+      "$is/*": ["is/*"]
     },
     "rootDir": ".",
     "strict": true,
@@ -28,7 +28,7 @@
   },
   "include": [
     "src/**/*",
-    "test/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules"

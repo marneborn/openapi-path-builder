@@ -28,9 +28,12 @@ describe('formatQueryString/boolean', () => {
       expect(error).toBeInstanceOf(WrongDataTypeError);
       expect((error as WrongDataTypeError).data).toEqual({
         path: options.path,
-        value,
-        name: options.name,
-      })
+        problems: [{
+          value,
+          name: options.name,
+          expected: 'boolean',
+        }],
+      });
     });
   });
 

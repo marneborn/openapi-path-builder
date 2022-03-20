@@ -5,6 +5,7 @@ import {
   WrongDataTypeError,
  } from '$errors';
 import generateSerializePath from './index';
+import getThrownError from '../../test/getThrownError';
 
 describe('serializePath', () => {
   describe('openapi v2', () => {
@@ -190,36 +191,28 @@ describe('serializePath', () => {
           const serializePath = generateSerializePath({ document });
           const params = {};
           
-          try {
-            serializePath({ method: 'get', params, path: '/pets/{petId}' });
-            throw new Error('Did not throw');
-          } catch(error) {
-            expect(error).toBeInstanceOf(MissingPathParamError);
-            expect((error as MissingPathParamError).data).toEqual({
-              path: '/pets/{petId}',
-              missingParams: ['petId'],
-            })
-          }
+          const error = getThrownError(() => serializePath({ method: 'get', params, path: '/pets/{petId}' }));
+          expect(error).toBeInstanceOf(MissingPathParamError);
+          expect((error as MissingPathParamError).data).toEqual({
+            path: '/pets/{petId}',
+            missingParams: ['petId'],
+          })
         });
 
         it('should throw  a WrongTypeError if the path param is not a string', () => {
           const serializePath = generateSerializePath({ document });
           const params = { petId: 10 };
   
-          try {
-            serializePath({ method: 'get', params, path: '/pets/{petId}' });
-            throw new Error('Did not throw');
-          } catch(error) {
-            expect(error).toBeInstanceOf(WrongDataTypeError);
-            expect((error as WrongDataTypeError).data).toEqual({
-              path: '/pets/{petId}',
-              problems: [{
-                name: 'petId',
-                expected: 'string',
-                value: 10,
-              }],
-            });
-          }
+          const error = getThrownError(() => serializePath({ method: 'get', params, path: '/pets/{petId}' }));
+          expect(error).toBeInstanceOf(WrongDataTypeError);
+          expect((error as WrongDataTypeError).data).toEqual({
+            path: '/pets/{petId}',
+            problems: [{
+              name: 'petId',
+              expected: 'string',
+              value: 10,
+            }],
+          });
         });
       });
 
@@ -253,24 +246,17 @@ describe('serializePath', () => {
         });
 
         it('should throw an error for ""', () => {
-          try {
-            const serializePath = generateSerializePath({ document });
-            serializePath({ method: 'get', params: { foo: '' }, path: '/pets/{petId}' });
-            throw new Error('Did not throw');
-          } catch(error) {
-            expect(error).toBeInstanceOf(WrongDataTypeError);
-            expect((error as WrongDataTypeError).data).toEqual({
-              path: '/pets/{petId}',
-              problems: [{
-                name: 'petId',
-                expected: 'string',
-                value: 10,
-              }],
-            });
-          }
-
           const serializePath = generateSerializePath({ document });
-          expect(serializePath({ method: OpenAPIV3.HttpMethods.GET, path: '/pets', params: { foo: '' } })).toContain('?foo=10');
+          const error = getThrownError(() => serializePath({ method: 'get', params: { foo: '' }, path: '/pets/{petId}' }))
+          expect(error).toBeInstanceOf(WrongDataTypeError);
+          expect((error as WrongDataTypeError).data).toEqual({
+            path: '/pets/{petId}',
+            problems: [{
+              name: 'petId',
+              expected: 'string',
+              value: 10,
+            }],
+          });
         });
       });
 
