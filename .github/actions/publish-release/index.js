@@ -8,10 +8,10 @@ const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 async function run() {
   try {
     const updateReleaseResonse = await octokit.rest.repos.updateRelease({
-      owner,
-      repo,
       draft: false,
+      owner,
       release_id: releaseId,
+      repo,
     });
 
     const {

@@ -2,12 +2,9 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 const { owner, repo } = github.context.repo;
-
 const version = core.getInput('version');
 const prNumber = core.getInput('pr-num');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-
-console.log('a', { owner, repo });
 
 async function run() {
   try {
