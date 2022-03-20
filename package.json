@@ -21,7 +21,8 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
     "jest": "^27.5.1",
-    "ts-jest": "^27.1.3"
+    "ts-jest": "^27.1.3",
+    "yaml-lint": "^1.2.4"
   },
   "scripts": {
     "prebuild": "rm -rf dist",
@@ -29,6 +30,7 @@
     "build:check": "tsc",
     "lint:js": "eslint *.js *.json .*.js .*.json src --ext .ts,.json --no-error-on-unmatched-pattern",
     "lint:js:fix": "yarn lint:js --fix",
+    "lint:yaml": "yamllint **/*.yml **/*.yaml --ignore=node_modules/**/*.yml --ignore=node_modules/**/*.yaml",
     "test": "jest --ci",
     "test:watch": "jest --watch"
   }
