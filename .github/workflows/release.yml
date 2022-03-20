@@ -5,7 +5,7 @@ on:
     branches: 
       - main
 concurrency:
-  group: openapi-serialize-path-release
+  group: openapi-path-builder
   cancel-in-progress: false
 jobs:
   release:
@@ -39,6 +39,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           releaseType: ${{ steps.check-releaseable.outputs.releaseType }}
       - run: yarn version --no-git-tag-version --new-version "${{ steps.increment-version.outputs.version }}"
+      - name: Push update to main
+        run: |
+          git config --global user.name 'Github Action'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git commit -am "Automated report"
+          git push
       - name: Create draft release
         id: create-release
         uses: ./.github/actions/create-release
@@ -58,3 +64,5 @@ jobs:
       # TODO - deploy to npm
       # Would rather do that on each release creation.
       # But a release created by a github action doesn't trigger the 'on' release 
+      # Maybe, to makes this work, use a repo scoped Personal Access Token (https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+
