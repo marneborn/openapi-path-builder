@@ -1,5 +1,5 @@
 import { OpenAPI } from 'openapi-types';
-import { MissingPathParamError, UnsupportedVersionError } from '$errors';
+import { UnsupportedVersionError } from '$errors';
 import * as checkVersion from './index';
 
 describe('checkVersion', () => {
