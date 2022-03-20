@@ -1,0 +1,184 @@
+name: release
+on:
+  pull_request:
+    types: [closed]
+    branches: 
+      - main
+concurrency:
+  group: noodle-api-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      LATEST_TAG: latest
+      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO_NAME }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha}}
+          fetch-depth: 2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.13.0'
+      - run: yarn install --production=false
+      # These tests are unlikely to fail after merge
+      # Would rather run in a separate workflow to not gate deploy
+      # But any errors need to fixed ASAP, so need a robust alerting system. 
+      - run: yarn lint:js
+      - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: us-east-1
+      # - run: yarn checkenv:development
+      - run: yarn checkenv:production
+      - name: Check releaseable
+        id: check-releaseable
+        uses: ./.github/actions/get-release-type
+      - name: Get new version
+        id: increment-version
+        uses: ./.github/actions/increment-version
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          releaseType: ${{ steps.check-releaseable.outputs.releaseType }}
+      - run: yarn version --no-git-tag-version --new-version "${{ steps.increment-version.outputs.version }}"
+      - name: Create release
+        id: create-release
+        uses: ./.github/actions/create-release
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ steps.increment-version.outputs.version }}
+          pr-num: ${{ github.event.pull_request.number }}
+      - name: Build Docker image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        # build in multiple stages so we can get the sourcemaps for uploading to sentry
+        run: |
+          docker build --target builder --no-cache --file Dockerfile --tag $ECR_REPOSITORY-builder .
+          docker build --file Dockerfile --tag $ECR_REPOSITORY:latest .
+      # The release action is not triggered by the create-release when using the default GITHUB_TOKEN
+      # Either need to use a persons ACCESS_TOKEN or a repository_dispatch event
+      # https://twitter.com/GeertvdC/status/1183837353493893122
+      # Trying with repository_dispatch but this means that changes to the workflow aren't seen immediately.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: us-east-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Tag and push Docker images
+        id: push-images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          VERSION: ${{ steps.increment-version.outputs.version }}
+        run: |
+          docker tag $ECR_REPOSITORY:$LATEST_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION
+          docker tag $ECR_REPOSITORY:$LATEST_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG
+          echo "Pushed $LATEST_TAG and $VERSION"
+      - name: Rollout to production
+        id: rollout-production
+        run: yarn deploy:production
+      - name: Copy build for upload
+        run: docker run -v $PWD:/usr/local --entrypoint='' $ECR_REPOSITORY-builder:latest cp -r /app/dist /usr/local/dist
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_CLIENT_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_LOG_LEVEL: debug
+        with:
+          environment: production
+          sourcemaps: ./dist
+          version: ${{ env.ECR_REPOSITORY }}@${{ steps.increment-version.outputs.version }}
+      - name: Notify slack of successful deploy
+        if: success()
+        id: slack-deploy-success
+        uses: slackapi/slack-github-action@v1.18.0
+        with:
+          channel-id: 'deployments'
+          payload: |
+            {
+              "text": "Release ${{ github.repository }}@${{ steps.increment-version.outputs.version }} created and deploy started",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": ":white_check_mark: Release ${{ github.repository }}@${{ steps.increment-version.outputs.version }} created and deploy started"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "PR Owner: ${{ github.event.pull_request.user.login || 'Unknown' }}\nPR: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Follow ECS Deploy https://console.aws.amazon.com/ecs/home?region=us-east-1#/clusters/noodle-shop/services/noodle-api/deployments"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: Notify slack of failed deploy
+        if: failure()
+        id: slack-deploy-failure
+        uses: slackapi/slack-github-action@v1.18.0
+        with:
+          channel-id: 'critical-errors'
+          payload: |
+            {
+              "text": "Release noodle-api@${{ steps.increment-version.outputs.version }} failed",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": ":x: Release failed - ${{ github.repository }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "PR Owner: ${{ github.event.pull_request.user.login || 'Unknown' }}\nPR: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

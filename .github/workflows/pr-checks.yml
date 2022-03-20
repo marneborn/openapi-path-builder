@@ -1,0 +1,38 @@
+name: pr-checks
+on:
+  pull_request:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  run-checks:
+    # @todo - push base image to ECR and pull from there
+    # @todo - and/or use Dockerfile action https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
+    name: PR Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.13.0'
+      - run: yarn install --production=false
+      - name: Check releaseable
+        id: check-releaseable
+        uses: ./.github/actions/get-release-type
+      - run: yarn lint:js
+      - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: us-east-1
+      # - run: yarn checkenv:development
+      - run: yarn checkenv:production
