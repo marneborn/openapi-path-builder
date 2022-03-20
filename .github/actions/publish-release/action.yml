@@ -4,11 +4,8 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github access token'
     required: true
-  version:
-    description: 'The release version'
-    required: true
-  pr-num:
-    description: 'The pr num'
+  releaseId:
+    description: 'The release id'
     required: true
 runs:
   using: 'node16'
