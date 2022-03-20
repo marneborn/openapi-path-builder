@@ -115,6 +115,27 @@ describe('serializePath', () => {
         expect(serializePath({ method: 'get', params, path: '/owners/{ownerId}/pets/{petId}' })).toBe('/owners/456/pets/123');
       });
 
+      it('should replace a path param multiple times', () => {
+        document.paths = {
+          '/pets/{petId}/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: '123' };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}/{petId}' })).toBe('/pets/123/123');
+      });
+
       it('should not need parameter definitions', () => {
         document.paths = {
           '/pets/{petId}': {

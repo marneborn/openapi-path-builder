@@ -1,4 +1,3 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import getBasePath from '$getBasePath';
 import { onlySupported, SupportedDocuments } from '$checkVersion';
 import {
@@ -6,14 +5,12 @@ import {
   WrongDataTypeError,
 } from '$errors';
 import { DataTypeProblem } from '$errors/WrongDataTypeError';
-import buildSearchParams from './buildSearchParams';
-import type {} from '$typings';
-
-type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
-type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject;
-type PathItemObject = OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject;
-type HttpMethods = OpenAPIV3.HttpMethods;
-type HttpMethodLiterals = `${HttpMethods}`;
+import type {
+  ParameterObject,
+  ReferenceObject,
+  PathItemObject,
+  HttpMethodLiterals
+} from '$types';
 
 type GenerateInput = {
   document: SupportedDocuments;
@@ -26,6 +23,12 @@ type SerializePathInput = {
 type SerializePath = (args: SerializePathInput) => string | null;
 
 const isQueryParam = (param: ParameterObject | ReferenceObject): param is ParameterObject => (param as ParameterObject).in === 'query';
+
+const replaceAllPathParam: (str: string, pattern: string, replaceWith: string) => string = (
+  String.prototype.replaceAll
+    ? (str, pattern, replaceWith) => str.replaceAll(`{${pattern}}`, replaceWith)
+    : (str, pattern, replaceWith) => str.replace(new RegExp(`{${pattern}}`, 'g'), replaceWith)
+);
 
 const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   onlySupported(document);
@@ -56,10 +59,12 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
     const paramNames = Object.keys(params);
     let serializedPath = path;
     const paramDataTypeProblems: DataTypeProblem[] = [];
+
     for (let i = 0; i < paramNames.length; i += 1) {
       const paramName = paramNames[i];
       const paramValue = params[paramName];
       if (paramValue) {
+        // @todo - handle more than just strings, eg id can be a number.
         if (typeof paramValue !== 'string') {
           paramDataTypeProblems.push({
             expected: 'string',
@@ -67,25 +72,17 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
             value: paramValue,
           });
         }
-        serializedPath = serializedPath.replace(`{${paramName}}`, encodeURI(paramValue as string));
+        serializedPath = replaceAllPathParam(serializedPath, paramName, encodeURI(paramValue as string));
       }
+    }
+
+    if (paramDataTypeProblems.length > 0) {
+      throw new WrongDataTypeError(path, ...paramDataTypeProblems);
     }
 
     const missingParamsMatch = serializedPath.match(/{[a-zA-Z0-9_-]+}/g);
     if (missingParamsMatch) {
       throw new MissingPathParamError(path, ...missingParamsMatch.map((s) => s.replace(/[{}]/g, '')));
-    }
-
-    const queryParams = getQueryParamObjects(path, method);
-    const [searchParams, queryParamDataTypeProblems] = buildSearchParams(queryParams, params);
-    paramDataTypeProblems.push(...queryParamDataTypeProblems);
-    const queryString = searchParams.toString();
-    if (queryString) {
-      serializedPath = `${serializedPath}?${encodeURI(queryString)}`;
-    }
-
-    if (paramDataTypeProblems.length > 0) {
-      throw new WrongDataTypeError(path, ...paramDataTypeProblems);
     }
 
     return `${basePath}${serializedPath}`;
