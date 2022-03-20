@@ -1,0 +1,15 @@
+name: 'Increment the version'
+description: 'Increment the version'
+inputs:
+  GITHUB_TOKEN:
+    description: 'Github access token'
+    required: true
+  releaseType:
+    description: 'The release type'
+    required: true
+outputs:
+  version:
+    description: "The new version number"
+runs:
+  using: 'node16'
+  main: 'index.js'
