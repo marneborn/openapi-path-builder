@@ -40,6 +40,7 @@ module.exports = {
       },
       files: ['src/**/*.spec.ts'],
       rules: {
+        '@typescript-eslint/no-empty-function': 'off',
         'func-names': 'off',
         'import/no-extraneous-dependencies': 'off',
       },
@@ -60,6 +61,16 @@ module.exports = {
     'sort-keys-fix',
   ],
   rules: {
+    camelcase: [
+      'error',
+      {
+        allow: ['OpenAPIV3_1'],
+        ignoreDestructuring: false,
+        ignoreGlobals: false,
+        ignoreImports: false,
+        properties: 'never',
+      },
+    ],
     'class-methods-use-this': 'off',
     'comma-dangle': 'error',
     'import/extensions': 'off',

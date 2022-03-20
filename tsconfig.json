@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "src/",
     "declaration": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
@@ -9,16 +9,25 @@
     "moduleResolution": "node",
     "noEmit": true,
     "noImplicitAny": true,
-    "outDir": "dist",
-    "rootDir": "src/",
-    "sourceMap": true,
+    "noImplicitReturns": true,
+    "paths": {
+      "$getBasePath": ["getBasePath"],
+      "$checkVersion": ["checkVersion"],
+      "$checkVersion/*": ["checkVersion/*"],
+      "$errors": ["errors"],
+      "$errors/*": ["errors/*"],
+      "$types": ["types"]
+    },
+    "rootDir": ".",
     "strict": true,
+    "strictFunctionTypes": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "target": "es5"
+    "target": "es6"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules"
