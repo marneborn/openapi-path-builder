@@ -1,9 +1,11 @@
 name: release
 on:
   pull_request:
-    # types: [closed]
+    types: [closed]
     branches: 
       - main
+  push:
+    branches: 
       - github-actions
 concurrency:
   group: noodle-api-release
