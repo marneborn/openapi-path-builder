@@ -1,4 +1,4 @@
-import isDate from 'validator/lib/isDate';
+import isDate from 'validator/es/lib/isDate';
 import { WrongDataTypeError } from '$errors';
 import { Formatter } from '../typings';
 

@@ -1,7 +1,7 @@
 import { WrongDataTypeError } from '$errors';
 import { Formatter } from '../typings';
 
-
+// @todo - handle other openapi number limits. Eg max and min
 const formatNumber: Formatter<number> = (value, options) => {
   if (typeof value === 'number') {
     return value.toString();
