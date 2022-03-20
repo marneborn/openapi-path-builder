@@ -1,12 +1,15 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
+const { owner, repo } = github.context.repo;
 const releaseId = core.getInput('releaseId');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
 async function run() {
   try {
     const updateReleaseResonse = await octokit.rest.repos.updateRelease({
+      owner,
+      repo,
       draft: false,
       release_id: releaseId,
     });

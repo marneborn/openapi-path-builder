@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const semver = require('semver');
 
-const { owner, repo } = require('../../constants');
+const { owner, repo } = github.context.repo;
 
 const releaseType = core.getInput('releaseType');
 const token = core.getInput('GITHUB_TOKEN');
