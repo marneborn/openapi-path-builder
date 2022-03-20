@@ -1,10 +1,14 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
+const { context } = github;
 const { owner, repo } = require('../../constants');
 const version = core.getInput('version');
 const prNumber = core.getInput('pr-num');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+
+console.log('a', { owner, repo });
+console.log('b', { owner: context.owner, repo: context.repo });
 
 async function run() {
   try {
@@ -15,7 +19,7 @@ async function run() {
       owner,
       prerelease: false,
       repo,
-      tag_name: version,
+      tag_name: `v${version}`,
       target_commitish: 'main',
     });
 
