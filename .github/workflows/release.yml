@@ -5,7 +5,7 @@ on:
     branches: 
       - main
 concurrency:
-  group: noodle-api-release
+  group: openapi-path-builder-release-workflow
   cancel-in-progress: false
 jobs:
   release:
@@ -30,8 +30,9 @@ jobs:
       - name: Get new version
         id: increment-version
         uses: ./.github/actions/increment-version
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           releaseType: ${{ steps.check-releaseable.outputs.releaseType }}
       - run: yarn version --no-git-tag-version --new-version "${{ steps.increment-version.outputs.version }}"
       - name: Create draft release
@@ -47,6 +48,7 @@ jobs:
       - run: yarn lint:yaml
       - run: yarn build:check
       - run: yarn test
+      ## Maybe build here and add dist as an asset?
       - name: Publish release
         id: publish-release
         uses: ./.github/actions/publish-release
@@ -57,3 +59,5 @@ jobs:
       # TODO - deploy to npm
       # Would rather do that on each release creation.
       # But a release created by a github action doesn't trigger the 'on' release 
+      # Maybe, to make this work, use a repo scoped Personal Access Token (https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+
