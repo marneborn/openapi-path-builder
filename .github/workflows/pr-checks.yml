@@ -24,15 +24,7 @@ jobs:
         id: check-releaseable
         uses: ./.github/actions/get-release-type
       - run: yarn lint:js
-      - run: yarn lint:sh
+      # - run: yarn lint:sh
       - run: yarn lint:yaml
       - run: yarn build:check
       - run: yarn test
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: us-east-1
-      # - run: yarn checkenv:development
-      - run: yarn checkenv:production
