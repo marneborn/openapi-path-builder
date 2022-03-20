@@ -27,7 +27,7 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
 
   return ({ path, params = {} }) => {
     const paramDataTypeProblems: DataTypeProblem[] = [];
-    const serializedPath = expandPathParams({ path, params, paramDataTypeProblems });
+    const serializedPath = expandPathParams({ paramDataTypeProblems, params, path });
 
     if (paramDataTypeProblems.length > 0) {
       throw new WrongDataTypeError(path, ...paramDataTypeProblems);

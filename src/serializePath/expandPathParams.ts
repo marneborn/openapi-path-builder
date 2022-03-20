@@ -1,6 +1,5 @@
 import { DataTypeProblem } from '$errors/WrongDataTypeError';
 import { Params } from '$types';
-import { stringify } from 'querystring';
 
 // support old browsers without .replaceAll without polyfill.
 const replaceAllPathParam: (str: string, pattern: string, replaceWith: string) => string = (
@@ -31,7 +30,7 @@ const handleString: InternalHandler = (paramValue, paramName, paramDataTypeProbl
   });
 
   return null;
-}
+};
 
 type Props = {
   path: string,
@@ -45,7 +44,7 @@ const expandPathParams = ({ path, params, paramDataTypeProblems }: Props): strin
   const paramNames = Object.keys(params);
   for (let i = 0; i < paramNames.length; i += 1) {
     const paramName = paramNames[i];
-    const paramValue = handleString(params[paramName], paramName, paramDataTypeProblems)
+    const paramValue = handleString(params[paramName], paramName, paramDataTypeProblems);
     if (paramValue) {
       serializedPath = replaceAllPathParam(serializedPath, paramName, encodeURI(paramValue));
     }

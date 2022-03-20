@@ -113,7 +113,7 @@ describe('serializePath', () => {
                 {
                   in: 'path',
                   name: 'petId',
-                  schema: { type: 'integer' }
+                  schema: { type: 'integer' },
                 },
               ],
               responses: {},
@@ -123,7 +123,7 @@ describe('serializePath', () => {
         const serializePath = generateSerializePath({
           document,
         });
-        const params = { petId: 572};
+        const params = { petId: 572 };
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/572');
       });
 
@@ -135,7 +135,7 @@ describe('serializePath', () => {
                 {
                   in: 'path',
                   name: 'petId',
-                  schema: { type: 'number' }
+                  schema: { type: 'number' },
                 },
               ],
               responses: {},
@@ -150,7 +150,7 @@ describe('serializePath', () => {
       });
 
       // @todo - implement
-      it.skip('should allow dateOnly', () => {
+      it.skip('should allow dateOnly, calling the dateOnly formatter', () => {
         const date = new Date();
         date.setFullYear(2021);
         date.setMonth(3);
@@ -162,7 +162,7 @@ describe('serializePath', () => {
                 {
                   in: 'path',
                   name: 'petId',
-                  schema: { type: 'string', format: 'date' }
+                  schema: { format: 'date', type: 'string' },
                 },
               ],
               responses: {},
@@ -174,6 +174,12 @@ describe('serializePath', () => {
         });
         const params = { petId: date };
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/2021-04-23');
+        // expect(dateOnlyFormatter).toHaveBeenCalledTimes(1);
+      });
+
+      // @todo merge this and 'allow dateTime' test below
+      it.skip('should allow dateTime, calling the dateTime formatter', () => {
+        // expect(dateTimeFormatter).toHaveBeenCalledTimes(1);
       });
 
       it('should allow dateTime', () => {
@@ -185,7 +191,7 @@ describe('serializePath', () => {
                 {
                   in: 'path',
                   name: 'petId',
-                  schema: { type: 'string', format: 'date' }
+                  schema: { format: 'date', type: 'string' },
                 },
               ],
               responses: {},
@@ -198,7 +204,7 @@ describe('serializePath', () => {
         const params = { petId: date };
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/2022-03-20T16:54:00.331Z');
       });
-      
+
       it('should replace multiple path params', () => {
         document.paths = {
           '/owners/{ownerId}/pets/{petId}': {
