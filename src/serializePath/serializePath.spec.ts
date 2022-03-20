@@ -84,6 +84,27 @@ describe('serializePath', () => {
         expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123');
       });
 
+      it('should encodeuri the params', () => {
+        document.paths = {
+          '/pets/{petId}': {
+            get: {
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'petId',
+                },
+              ],
+              responses: {},
+            },
+          },
+        };
+        const serializePath = generateSerializePath({
+          document,
+        });
+        const params = { petId: '123 with space' };
+        expect(serializePath({ method: 'get', params, path: '/pets/{petId}' })).toBe('/pets/123%20with%20space');
+      });
+
       it('should replace multiple path params', () => {
         document.paths = {
           '/owners/{ownerId}/pets/{petId}': {
