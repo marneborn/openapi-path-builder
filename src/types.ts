@@ -5,3 +5,4 @@ export type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceO
 export type PathItemObject = OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject;
 export type HttpMethods = OpenAPIV3.HttpMethods;
 export type HttpMethodLiterals = `${HttpMethods}`;
+export type Params<P = Record<string, unknown>> = P;

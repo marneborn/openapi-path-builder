@@ -7,7 +7,9 @@ import {
 import { DataTypeProblem } from '$errors/WrongDataTypeError';
 import type {
   HttpMethodLiterals,
+  Params,
 } from '$types';
+import expandPathParams from './expandPathParams';
 
 type GenerateInput = {
   document: SupportedDocuments;
@@ -15,7 +17,7 @@ type GenerateInput = {
 type SerializePathInput = {
   method: HttpMethodLiterals,
   path: string,
-  params?: Record<string, unknown>,
+  params?: Params,
 };
 type SerializePath = (args: SerializePathInput) => string | null;
 
@@ -30,25 +32,8 @@ const generateSerializePath = ({ document }: GenerateInput): SerializePath => {
   const basePath = getBasePath(document);
 
   return ({ path, params = {} }) => {
-    const paramNames = Object.keys(params);
-    let serializedPath = path;
     const paramDataTypeProblems: DataTypeProblem[] = [];
-
-    for (let i = 0; i < paramNames.length; i += 1) {
-      const paramName = paramNames[i];
-      const paramValue = params[paramName];
-      if (paramValue) {
-        // @todo - handle more than just strings, eg id can be a number.
-        if (typeof paramValue !== 'string') {
-          paramDataTypeProblems.push({
-            expected: 'string',
-            name: paramName,
-            value: paramValue,
-          });
-        }
-        serializedPath = replaceAllPathParam(serializedPath, paramName, encodeURI(paramValue as string));
-      }
-    }
+    const serializedPath = expandPathParams(path, params, paramDataTypeProblems)
 
     if (paramDataTypeProblems.length > 0) {
       throw new WrongDataTypeError(path, ...paramDataTypeProblems);
