@@ -1,0 +1,59 @@
+name: release
+on:
+  pull_request:
+    types: [closed]
+    branches: 
+      - main
+concurrency:
+  group: noodle-api-release
+  cancel-in-progress: false
+jobs:
+  release:
+    # if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      LATEST_TAG: latest
+      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO_NAME }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha}}
+          fetch-depth: 2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.13.0'
+      - run: yarn install --production=false
+      - name: Check releaseable
+        id: check-releaseable
+        uses: ./.github/actions/get-release-type
+      - run: yarn lint:js
+      - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
+      - name: Get new version
+        id: increment-version
+        uses: ./.github/actions/increment-version
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          releaseType: ${{ steps.check-releaseable.outputs.releaseType }}
+      - run: yarn version --no-git-tag-version --new-version "${{ steps.increment-version.outputs.version }}"
+      - name: Create draft release
+        id: create-release
+        uses: ./.github/actions/create-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: ${{ steps.increment-version.outputs.version }}
+          pr-num: ${{ github.event.pull_request.number }}
+      - name: Publish release
+        id: publish-release
+        uses: ./.github/actions/publish-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          releaseId: ${{ steps.create-release.outputs.releaseId }}
+      # TODO - deploy to npm
+      # Would rather do that on each release creation.
+      # But a release created by a github action doesn't trigger the 'on' release 

@@ -1,0 +1,12 @@
+name: 'Publish a draft release'
+description: 'Publish a draft release'
+inputs:
+  GITHUB_TOKEN:
+    description: 'Github access token'
+    required: true
+  releaseId:
+    description: 'The release id'
+    required: true
+runs:
+  using: 'node16'
+  main: 'index.js'

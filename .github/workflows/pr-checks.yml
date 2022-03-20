@@ -1,0 +1,28 @@
+name: pr-checks
+on:
+  pull_request:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  run-checks:
+    name: PR Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.13.0'
+      - run: yarn install --production=false
+      - name: Check releaseable
+        id: check-releaseable
+        uses: ./.github/actions/get-release-type
+      - run: yarn lint:js
+      # - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
