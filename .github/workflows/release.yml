@@ -24,14 +24,9 @@ jobs:
         with:
           node-version: '16.13.0'
       - run: yarn install --production=false
-      - name: Check releaseable
-        id: check-releaseable
+      - name: Get release type
+        id: get-release-type
         uses: ./.github/actions/get-release-type
-      - run: yarn lint:js
-      - run: yarn lint:sh
-      - run: yarn lint:yaml
-      - run: yarn build:check
-      - run: yarn test
       - name: Get new version
         id: increment-version
         uses: ./.github/actions/increment-version
@@ -47,6 +42,11 @@ jobs:
         with:
           version: ${{ steps.increment-version.outputs.version }}
           pr-num: ${{ github.event.pull_request.number }}
+      - run: yarn lint:js
+      # - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
       - name: Publish release
         id: publish-release
         uses: ./.github/actions/publish-release
