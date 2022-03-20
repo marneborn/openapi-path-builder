@@ -8,8 +8,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   run-checks:
-    # @todo - push base image to ECR and pull from there
-    # @todo - and/or use Dockerfile action https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
     name: PR Tests
     runs-on: ubuntu-latest
     steps:
