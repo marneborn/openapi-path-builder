@@ -4,8 +4,7 @@ const semver = require('semver');
 
 const { owner, repo } = github.context.repo;
 const releaseType = core.getInput('releaseType');
-const token = core.getInput('GITHUB_TOKEN');
-const octokit = github.getOctokit(token);
+const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
 async function run() {
   try {

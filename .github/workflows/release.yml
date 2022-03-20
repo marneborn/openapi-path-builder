@@ -5,7 +5,7 @@ on:
     branches: 
       - main
 concurrency:
-  group: openapi-path-builder
+  group: openapi-path-builder-release-workflow
   cancel-in-progress: false
 jobs:
   release:
@@ -35,16 +35,18 @@ jobs:
       - name: Get new version
         id: increment-version
         uses: ./.github/actions/increment-version
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           releaseType: ${{ steps.check-releaseable.outputs.releaseType }}
       - run: yarn version --no-git-tag-version --new-version "${{ steps.increment-version.outputs.version }}"
       - name: Push update to main
         run: |
           git config --global user.name 'Github Action'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git commit -am "Automated report"
-          git push
+          git add package.json
+          git commit -m "Released"
+          git push origin
       - name: Create draft release
         id: create-release
         uses: ./.github/actions/create-release
