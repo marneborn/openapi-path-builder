@@ -9,55 +9,45 @@ describe('formatQueryString/dateOnly', () => {
     options = {
       path: '/foo',
       name: 'aParam',
-      strict: true,
     };
   });
 
-  describe('strict: true', () => {
-    it('should pass through 2020-01-10', () => {
-      expect(formatDateOnly('2020-01-10', options)).toBe('2020-01-10');
-    });
-  
-    it('should convert a Date to YYY-MM-DD', () => {
-      jest.spyOn(Date.prototype, 'getFullYear').mockImplementation((): number => 2022);
-      jest.spyOn(Date.prototype, 'getMonth').mockImplementation((): number => 2);
-      jest.spyOn(Date.prototype, 'getDate').mockImplementation((): number => 19);
-      expect(formatDateOnly(new Date(), options)).toBe('2022-03-19');
-    });
+  it('should pass through 2020-01-10', () => {
+    expect(formatDateOnly('2020-01-10', options)).toBe('2020-01-10');
+  });
 
-    it('should throw an error if the value is boolean', () => {
-      const value = true;
-      const error = getThrownError(() => formatDateOnly(value as any, options))
-      expect(error).toBeInstanceOf(WrongDataTypeError);
-      expect((error as WrongDataTypeError).data).toEqual({
-        path: options.path,
-        problems: [{
-          value,
-          name: options.name,
-          expected: 'string:date',
-        }],
-      });
-    });
+  it('should convert a Date to YYY-MM-DD', () => {
+    jest.spyOn(Date.prototype, 'getFullYear').mockImplementation((): number => 2022);
+    jest.spyOn(Date.prototype, 'getMonth').mockImplementation((): number => 2);
+    jest.spyOn(Date.prototype, 'getDate').mockImplementation((): number => 19);
+    expect(formatDateOnly(new Date(), options)).toBe('2022-03-19');
+  });
 
-    it('should throw an error if the value is a string that is not formatted correctly', () => {
-      const value = '10';
-      const error = getThrownError(() => formatDateOnly(value as any, options))
-      expect(error).toBeInstanceOf(WrongDataTypeError);
-      expect((error as WrongDataTypeError).data).toEqual({
-        path: options.path,
-        problems: [{
-          value,
-          name: options.name,
-          expected: 'string:date',
-        }],
-      });
+  it('should throw an error if the value is boolean', () => {
+    const value = true;
+    const error = getThrownError(() => formatDateOnly(value as any, options))
+    expect(error).toBeInstanceOf(WrongDataTypeError);
+    expect((error as WrongDataTypeError).data).toEqual({
+      path: options.path,
+      problems: [{
+        value,
+        name: options.name,
+        expected: 'string:date',
+      }],
     });
   });
 
-  describe('strict: false', () => {
-    // date-only formatting has no strict: false handling.
-    it('should pass through 2020-01-10', () => {
-      expect(formatDateOnly('2020-01-10', options)).toBe('2020-01-10');
+  it('should throw an error if the value is a string that is not formatted correctly', () => {
+    const value = '10';
+    const error = getThrownError(() => formatDateOnly(value as any, options))
+    expect(error).toBeInstanceOf(WrongDataTypeError);
+    expect((error as WrongDataTypeError).data).toEqual({
+      path: options.path,
+      problems: [{
+        value,
+        name: options.name,
+        expected: 'string:date',
+      }],
     });
   });
 });

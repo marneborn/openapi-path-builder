@@ -7,7 +7,7 @@ const formatInteger: Formatter<number> = (value, options) => {
     return value.toFixed(0);
   }
 
-  if (!options.strict && typeof value === 'string') {
+  if (typeof value === 'string') {
     const n = parseFloat(value);
     if (!Number.isNaN(n)) {
       return n.toFixed(0);

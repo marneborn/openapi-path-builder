@@ -1,11 +1,11 @@
-import isDate from 'validator/es/lib/isDate';
+import isDate from 'validator/lib/isDate';
 import { WrongDataTypeError } from '$errors';
 import { Formatter } from '../typings';
 
 const toTwoDigitString = (n: number ): string => n < 10 ? `0${n.toFixed(0)}` : n.toFixed(0);
 
 const formatDateOnly: Formatter<string | Date> = (value, options) => {
-  let asString;
+  let asString = ''
   if (typeof value === 'string') {
     asString = value;
   }

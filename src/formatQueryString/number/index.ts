@@ -7,7 +7,7 @@ const formatNumber: Formatter<number> = (value, options) => {
     return value.toString();
   }
 
-  if (!options.strict && typeof value === 'string') {
+  if (typeof value === 'string') {
     const n = parseFloat(value);
     if (!Number.isNaN(n)) {
       return n.toString();
