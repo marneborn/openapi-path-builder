@@ -1,9 +1,9 @@
 import { WrongDataTypeError } from '$errors';
-import formatDateOnly from './index';
+import formatDateTime from './index';
 import getThrownError from '../../../test/getThrownError';
 
-describe('formatQueryString/dateOnly', () => {
-  let options: Parameters<typeof formatDateOnly>[1];
+describe('formatQueryString/dateTime', () => {
+  let options: Parameters<typeof formatDateTime>[1];
 
   beforeEach(() => {
     options = {
@@ -14,41 +14,39 @@ describe('formatQueryString/dateOnly', () => {
   });
 
   describe('strict: true', () => {
-    it('should pass through 2020-01-10', () => {
-      expect(formatDateOnly('2020-01-10', options)).toBe('2020-01-10');
+    it('should pass through 2022-03-20T06:58:25.829Z', () => {
+      expect(formatDateTime('2022-03-20T06:58:25.829Z', options)).toBe('2022-03-20T06:58:25.829Z');
     });
   
-    it('should convert a Date to YYY-MM-DD', () => {
-      jest.spyOn(Date.prototype, 'getFullYear').mockImplementation((): number => 2022);
-      jest.spyOn(Date.prototype, 'getMonth').mockImplementation((): number => 2);
-      jest.spyOn(Date.prototype, 'getDate').mockImplementation((): number => 19);
-      expect(formatDateOnly(new Date(), options)).toBe('2022-03-19');
+    it('should convert a Date to iso time', () => {
+      jest.spyOn(Date.prototype, 'toISOString').mockImplementation((): string => '2022-03-20T06:58:25.829Z');
+      expect(formatDateTime(new Date(), options)).toBe('2022-03-20T06:58:25.829Z');
     });
 
     it('should throw an error if the value is boolean', () => {
       const value = true;
-      const error = getThrownError(() => formatDateOnly(value as any, options))
+      const error = getThrownError(() => formatDateTime(value as any, options))
       expect(error).toBeInstanceOf(WrongDataTypeError);
       expect((error as WrongDataTypeError).data).toEqual({
         path: options.path,
         problems: [{
           value,
           name: options.name,
-          expected: 'string:date',
+          expected: 'string:date-time',
         }],
       });
     });
 
     it('should throw an error if the value is a string that is not formatted correctly', () => {
       const value = '10';
-      const error = getThrownError(() => formatDateOnly(value as any, options))
+      const error = getThrownError(() => formatDateTime(value as any, options))
       expect(error).toBeInstanceOf(WrongDataTypeError);
       expect((error as WrongDataTypeError).data).toEqual({
         path: options.path,
         problems: [{
           value,
           name: options.name,
-          expected: 'string:date',
+          expected: 'string:date-time',
         }],
       });
     });
@@ -56,8 +54,8 @@ describe('formatQueryString/dateOnly', () => {
 
   describe('strict: false', () => {
     // date-only formatting has no strict: false handling.
-    it('should pass through 2020-01-10', () => {
-      expect(formatDateOnly('2020-01-10', options)).toBe('2020-01-10');
+    it('should pass through a valid iso datetime', () => {
+      expect(formatDateTime('2022-03-20T06:58:25.829Z', options)).toBe('2022-03-20T06:58:25.829Z');
     });
   });
 });

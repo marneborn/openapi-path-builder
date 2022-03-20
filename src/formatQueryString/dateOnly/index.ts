@@ -1,7 +1,7 @@
+import isDate from 'validator/lib/isDate';
 import { WrongDataTypeError } from '$errors';
 import { Formatter } from '../typings';
 
-const RE = /\d{4}-\d{2}-\d{2}/;
 const toTwoDigitString = (n: number ): string => n < 10 ? `0${n.toFixed(0)}` : n.toFixed(0);
 
 const formatDateOnly: Formatter<string | Date> = (value, options) => {
@@ -13,7 +13,7 @@ const formatDateOnly: Formatter<string | Date> = (value, options) => {
     asString = `${value.getFullYear()}-${toTwoDigitString(value.getMonth() + 1)}-${toTwoDigitString(value.getDate())}`
   }
 
-  if (RE.test(asString)) {
+  if (isDate(asString, { format: 'YYYY-MM-DD', strictMode: true })) {
     return asString;
   }
 
