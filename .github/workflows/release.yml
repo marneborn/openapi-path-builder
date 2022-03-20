@@ -4,9 +4,6 @@ on:
     types: [closed]
     branches: 
       - main
-  push:
-    branches: 
-      - github-actions
 concurrency:
   group: noodle-api-release
   cancel-in-progress: false
@@ -30,11 +27,11 @@ jobs:
       - name: Check releaseable
         id: check-releaseable
         uses: ./.github/actions/get-release-type
-      # - run: yarn lint:js
-      # - run: yarn lint:sh
-      # - run: yarn lint:yaml
-      # - run: yarn build:check
-      # - run: yarn test
+      - run: yarn lint:js
+      - run: yarn lint:sh
+      - run: yarn lint:yaml
+      - run: yarn build:check
+      - run: yarn test
       - name: Get new version
         id: increment-version
         uses: ./.github/actions/increment-version
